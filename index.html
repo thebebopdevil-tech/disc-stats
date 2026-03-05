@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDGA Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1c1610;
+    --surface: #241e16;
+    --surface2: #2d2519;
+    --border: #3d3128;
+    --accent: #c8955a;
+    --accent2: #e0b482;
+    --accent-dim: #4a3420;
+    --text: #f0e6d6;
+    --text-muted: #9c8b78;
+    --text-dim: #5c4f42;
+    --red: #c0614a;
+    --gold: #c8a84b;
+    --gold-dim: #4a3c1a;
+    --teal: #5a9c8c;
+    --teal-dim: #1e3832;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(200,149,90,0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 85%, rgba(90,156,140,0.04) 0%, transparent 45%);
+  }
+  .app { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:28px 16px; }
+  header { display:flex; align-items:center; gap:14px; margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+  .logo { width:48px; height:48px; background:var(--surface2); border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
+  .logo svg { width:44px; height:44px; }
+  .header-text h1 { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--text); line-height:1; letter-spacing:0; }
+  .header-text p { font-size:11px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-top:3px; font-weight:400; }
+  .search-bar { display:flex; gap:10px; margin-bottom:28px; }
+  .search-bar input {
+    flex:1; background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    padding:11px 16px; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:14px;
+    outline:none; transition:border-color 0.2s;
+  }
+  .search-bar input:focus { border-color:var(--accent); }
+  .search-bar input::placeholder { color:var(--text-dim); }
+  .search-bar button {
+    background:var(--accent); color:var(--bg); border:none; border-radius:8px;
+    padding:11px 22px; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+    cursor:pointer; letter-spacing:0.3px; transition:background 0.2s,transform 0.1s; white-space:nowrap;
+  }
+  .search-bar button:hover { background:var(--accent2); }
+  .search-bar button:active { transform:scale(0.97); }
+  .search-bar button:disabled { opacity:0.4; cursor:not-allowed; }
+  .status { text-align:center; padding:48px; color:var(--text-muted); font-size:14px; line-height:1.8; }
+  .status.error { color:var(--red); }
+  .spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .player-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:22px 26px; margin-bottom:16px; display:flex; gap:24px; align-items:center; flex-wrap:wrap;
+  }
+  .player-avatar {
+    width:60px; height:60px; background:var(--accent-dim); border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif; font-size:22px; color:var(--accent); flex-shrink:0; font-weight:700;
+  }
+  .player-info { flex:1; min-width:150px; }
+  .player-info h2 { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--text); line-height:1.2; }
+  .player-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .badge {
+    font-size:11px; font-family:'IBM Plex Mono',monospace; padding:3px 8px; border-radius:4px;
+    background:var(--surface2); border:1px solid var(--border); color:var(--text-muted); letter-spacing:0.3px;
+  }
+  .badge.warm { background:rgba(200,149,90,0.12); border-color:rgba(200,149,90,0.3); color:var(--accent2); }
+  .rating-display { text-align:center; flex-shrink:0; padding:0 8px; }
+  .rating-number { font-family:'Playfair Display',serif; font-size:48px; color:var(--accent); line-height:1; font-weight:700; }
+  .rating-label { font-size:10px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-top:3px; }
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:16px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; text-align:center; transition:border-color 0.15s, background 0.15s; }
+  .stat-card:hover { border-color:var(--accent); background:var(--surface2); }
+  .stat-value { font-family:'Playfair Display',serif; font-size:28px; color:var(--accent); line-height:1; font-weight:700; }
+  .stat-label { font-size:10px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-top:4px; font-weight:500; }
+  .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:16px; }
+  .section-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+  .section-header h3 { font-family:'Inter',sans-serif; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); }
+  .dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .type-tabs { display:flex; gap:6px; padding:12px 20px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .type-tab {
+    font-size:11px; font-family:'Inter',monospace; padding:4px 12px; border-radius:20px;
+    border:1px solid var(--border); background:transparent; color:var(--text-muted);
+    cursor:pointer; transition:all 0.15s; font-weight:500; letter-spacing:0.3px;
+  }
+  .type-tab:hover { border-color:var(--accent); color:var(--accent); }
+  .type-tab.active { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+  .event-row { display:grid; grid-template-columns:8px 1fr auto auto; gap:12px; padding:12px 20px; border-bottom:1px solid var(--border); align-items:center; transition:background 0.15s; }
+  .event-row:last-child { border-bottom:none; }
+  .event-row:hover { background:var(--surface2); }
+  .event-row.hidden { display:none; }
+  .type-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .dot-tournament { background:var(--accent); }
+  .dot-league { background:var(--teal); }
+  .dot-doubles { background:var(--gold); }
+  .event-name { font-size:13px; font-weight:500; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .event-name a { color:var(--text); text-decoration:none; }
+  .event-name a:hover { color:var(--accent); text-decoration:underline; }
+  .event-date { font-size:11px; color:var(--text-muted); font-family:'IBM Plex Mono',monospace; white-space:nowrap; }
+  .event-place { font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500; padding:2px 8px; border-radius:4px; white-space:nowrap; }
+  .place-1   { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(200,168,75,0.3); }
+  .place-top { background:rgba(200,149,90,0.12); color:var(--accent2); border:1px solid rgba(200,149,90,0.3); }
+  .place-mid { background:var(--surface2); color:var(--text-muted); border:1px solid var(--border); }
+  .chart-wrap { padding: 20px 20px 12px; }
+  .chart-canvas-wrap { position: relative; width: 100%; height: 200px; }
+  .chart-empty { padding: 24px; text-align: center; font-size: 13px; color: var(--text-dim); }
+  .chart-x-labels { display: flex; justify-content: space-between; padding: 4px 4px 0; }
+  .chart-x-labels span { font-size: 10px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; }
+
+  .round-detail { display:none; background:var(--surface2); border-bottom:1px solid var(--border); padding:0; overflow:hidden; }
+  .round-detail.open { display:block; }
+  .round-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .round-table th { padding:7px 12px; text-align:left; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--border); background:var(--surface); }
+  .round-table td { padding:8px 12px; border-bottom:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:11px; }
+  .round-table tr:last-child td { border-bottom:none; }
+  .round-table tr:hover td { background:rgba(200,149,90,0.05); }
+  .round-rating-high { color:var(--accent2); }
+  .round-rating-low  { color:var(--text-muted); }
+  .no-rounds { padding:14px 20px; font-size:12px; color:var(--text-dim); font-style:italic; }
+  .debug-box { margin-top:12px; padding:12px; background:#1a0f0a; border:1px solid #4a2a1e; border-radius:8px; text-align:left; font-size:11px; color:var(--red); font-family:'IBM Plex Mono',monospace; word-break:break-all; line-height:1.6; max-height:200px; overflow-y:auto; }
+  .pdga-credit { text-align:center; font-size:11px; color:var(--text-dim); padding:16px; }
+  .pdga-credit a { color:var(--text-muted); text-decoration:none; }
+  .pdga-credit a:hover { color:var(--accent); }
+  .fade-in { animation:fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  @media(max-width:480px) {
+    .player-card{flex-direction:column;align-items:flex-start}
+    .rating-display{align-self:flex-end}
+    .event-row{grid-template-columns:8px 1fr auto}
+    .event-date{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer rim -->
+        <circle cx="20" cy="20" r="18" fill="#1c1610" stroke="#1c1610" stroke-width="0"/>
+        <!-- Flight plate (wide flat top) -->
+        <ellipse cx="20" cy="17" rx="14" ry="5" fill="#1c1610" opacity="0.5"/>
+        <!-- Main disc body -->
+        <circle cx="20" cy="20" r="18" fill="#1c1610"/>
+        <!-- Rim highlight -->
+        <circle cx="20" cy="20" r="18" fill="none" stroke="#c8955a" stroke-width="1.5" opacity="0.4"/>
+        <!-- Inner wing rings -->
+        <circle cx="20" cy="20" r="14" fill="none" stroke="#c8955a" stroke-width="0.8" opacity="0.35"/>
+        <circle cx="20" cy="20" r="10" fill="none" stroke="#c8955a" stroke-width="0.8" opacity="0.3"/>
+        <!-- Flight dome (center dome viewed from above) -->
+        <circle cx="20" cy="20" r="6" fill="#c8955a" opacity="0.15"/>
+        <circle cx="20" cy="20" r="4" fill="#c8955a" opacity="0.25"/>
+        <!-- Center dot -->
+        <circle cx="20" cy="20" r="2" fill="#c8955a"/>
+        <!-- Top shine -->
+        <ellipse cx="16" cy="14" rx="4" ry="2" fill="white" opacity="0.07" transform="rotate(-20 16 14)"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>DISC STATS</h1>
+      <p>PDGA Player Dashboard</p>
+    </div>
+  </header>
+  <div class="search-bar">
+    <input type="text" id="pdgaInput" placeholder="PDGA number or player name..." value="108874" />
+    <button id="searchBtn" onclick="handleSearch()">SEARCH</button>
+  </div>
+  <div id="searchHint" style="display:none;margin:-12px 0 16px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:10px;">
+    <span>Can't find by name directly — </span>
+    <a id="pdgaSearchLink" href="" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600;">Search on PDGA.com →</a>
+    <span style="color:var(--text-dim);">then paste the number back here</span>
+  </div>
+  <div id="content">
+    <div class="status"><div style="font-size:32px;margin-bottom:12px;">🥏</div>Enter your PDGA number to load your stats</div>
+  </div>
+  <div class="pdga-credit">Player data © <a href="https://www.pdga.com" target="_blank">PDGA</a></div>
+</div>
+
+<script>
+async function handleSearch() {
+  const val = document.getElementById('pdgaInput').value.trim();
+  if (!val) return;
+  // Pure number — load directly
+  if (/^\d{4,7}$/.test(val)) {
+    document.getElementById('searchHint').style.display = 'none';
+    loadPlayer();
+    return;
+  }
+  // Name — search via our proxy
+  await searchByName(val);
+}
+
+async function searchByName(name) {
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'SEARCHING...';
+  document.getElementById('searchHint').style.display = 'none';
+  showLoading(`Searching for "${name}"...`);
+
+  try {
+    const parts = name.trim().split(/\s+/);
+    const first = encodeURIComponent(parts[0] || '');
+    const last = encodeURIComponent(parts.slice(1).join(' ') || '');
+    const searchUrl = `https://www.pdga.com/players?FirstName=${first}&LastName=${last}`;
+    const html = await fetchViaProxy(searchUrl);
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const players = parsePlayerSearchResults(doc);
+
+    document.getElementById('content').innerHTML = '<div class="status"><div style="font-size:32px;margin-bottom:12px;">🥏</div>Select a player below or enter a PDGA number</div>';
+
+    if (!players.length) {
+      document.getElementById('searchHint').style.display = 'flex';
+      const link = document.getElementById('pdgaSearchLink');
+      link.href = `https://www.pdga.com/players?FirstName=${first}&LastName=${last}`;
+      link.textContent = `Search "${name}" on PDGA.com →`;
+    } else {
+      showSearchResults(players);
+    }
+  } catch(e) {
+    document.getElementById('content').innerHTML = '<div class="status"><div style="font-size:32px;margin-bottom:12px;">🥏</div>Enter your PDGA number to load your stats</div>';
+    showSearchResults([], e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'SEARCH';
+}
+
+function parsePlayerSearchResults(doc) {
+  const players = [];
+  const rows = doc.querySelectorAll('table tbody tr, .view-players tbody tr, .views-table tbody tr');
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    if (cells.length < 2) return;
+    // Find PDGA number — usually a link to /player/XXXXXX
+    let pdgaNum = '', name = '', location = '', rating = '', cls = '';
+    const link = row.querySelector('a[href*="/player/"]');
+    if (link) {
+      const m = link.getAttribute('href').match(/\/player\/(\d+)/);
+      if (m) pdgaNum = m[1];
+      name = link.textContent.trim();
+    }
+    cells.forEach(td => {
+      const t = td.textContent.trim();
+      if (!pdgaNum && /^\d{4,7}$/.test(t)) pdgaNum = t;
+      if (/^\d{3,4}$/.test(t) && +t > 400 && +t < 1100) rating = t;
+      if (/^(Am|Pro|P|A)/.test(t) && t.length < 10) cls = t;
+    });
+    // Location: look for city/country pattern
+    cells.forEach(td => {
+      const t = td.textContent.trim();
+      if (t.includes(',') && t.length > 3 && t.length < 50 && !t.includes('/')) location = t;
+    });
+    if (pdgaNum && name) players.push({ pdgaNum, name, location, rating, class: cls });
+  });
+  return players.slice(0, 8);
+}
+
+function showSearchResults(players, error) {
+  const el = document.getElementById('searchHint');
+  if (error || !players.length) {
+    el.style.display = 'flex';
+    document.getElementById('pdgaSearchLink').textContent = 'Search on PDGA.com →';
+    document.getElementById('pdgaSearchLink').href = 'https://www.pdga.com/players';
+    return;
+  }
+  // Show results as a list above the main content
+  let h = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);">SELECT PLAYER</div>`;
+  players.forEach(p => {
+    h += `<div onclick="selectPlayer('${p.pdgaNum}')" style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);width:56px;flex-shrink:0;">#${p.pdgaNum}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">${p.name}</div>
+        ${p.location ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${p.location}</div>` : ''}
+      </div>
+      ${p.rating ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);flex-shrink:0;">${p.rating}</div>` : ''}
+    </div>`;
+  });
+  h += `</div>`;
+  const existing = document.getElementById('playerSearchResults');
+  if (existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'playerSearchResults';
+  div.innerHTML = h;
+  document.getElementById('searchHint').insertAdjacentElement('afterend', div);
+}
+
+function selectPlayer(pdgaNum) {
+  document.getElementById('pdgaInput').value = pdgaNum;
+  const el = document.getElementById('playerSearchResults');
+  if (el) el.remove();
+  loadPlayer();
+}
+
+// Use our own Vercel proxy
+const PROXY_BASE = 'https://disc-stats.vercel.app/api/proxy';
+
+async function fetchViaProxy(url) {
+  const proxyUrl = `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+  if (!res.ok) throw new Error(`Proxy error ${res.status}`);
+  const text = await res.text();
+  if (!text || text.length < 100) throw new Error('Empty response from proxy');
+  return text;
+}
+
+async function fetchAllPages(baseUrl, type) {
+  const events = [];
+  let doc = null;
+  const parser = new DOMParser();
+
+  try {
+    const html = await fetchViaProxy(baseUrl);
+    doc = parser.parseFromString(html, 'text/html');
+    parseEvents(doc, events, type);
+
+    let maxPage = 0;
+    doc.querySelectorAll('a[href*="page="]').forEach(a => {
+      const m = (a.getAttribute('href')||'').match(/[?&]page=(\d+)/);
+      if (m) maxPage = Math.max(maxPage, parseInt(m[1]));
+    });
+
+    for (let p = 1; p <= Math.min(maxPage, 15); p++) {
+      try {
+        const pageHtml = await fetchViaProxy(`${baseUrl}?page=${p}`);
+        const pageDoc = parser.parseFromString(pageHtml, 'text/html');
+        const before = events.length;
+        parseEvents(pageDoc, events, type);
+        if (events.length === before) break;
+      } catch(e) { break; }
+    }
+  } catch(e) {
+    if (type === 'tournament') throw e; // rethrow only for main page
+  }
+
+  return { events, doc };
+}
+
+async function loadPlayer() {
+  const num = document.getElementById('pdgaInput').value.trim();
+  if (!num) return;
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'LOADING...';
+  showLoading('Fetching player profile...');
+
+  try {
+    const baseUrl = `https://www.pdga.com/player/${num}`;
+
+    // Fetch main profile page (player info + current year events)
+    showLoading('Fetching player profile...');
+    const { events: mainEvents, doc } = await fetchAllPages(baseUrl, 'tournament');
+    if (!doc) throw new Error('Could not load profile page');
+
+    const name = extractPlayerName(doc, num);
+    const rating = extractRating(doc);
+    const location = extractField(doc, ['.location','.views-field-city','.field-name-field-city']);
+    const classification = extractField(doc, ['.classification','.views-field-class','.field-name-field-classification']);
+    const memberStatus = extractField(doc, ['.membership-status','.views-field-membership-status']);
+
+    // Fetch stats pages — start from join year, up to current year
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = currentYear; y >= 2010; y--) years.push(y); // newest first
+
+    let allTournEvents = [...mainEvents];
+    let allLeagueEvents = [];
+    let allDoublesEvents = [];
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    let emptyYears = 0;
+
+    for (const year of years) {
+      showLoading(`Fetching ${year} results...`);
+      // Fetch all 3 tabs in parallel per year
+      const [{ events: tEvents }, { events: lEvents }, { events: dEvents }] = await Promise.all([
+        fetchAllPages(`${baseUrl}/stats/${year}`, 'tournament').catch(() => ({ events: [] })),
+        fetchAllPages(`${baseUrl}/stats/${year}?tab=leagues`, 'league').catch(() => ({ events: [] })),
+        fetchAllPages(`${baseUrl}/stats/${year}?tab=doubles`, 'doubles').catch(() => ({ events: [] })),
+      ]);
+      const yearTotal = tEvents.length + lEvents.length + dEvents.length;
+      if (yearTotal === 0) {
+        emptyYears++;
+        // Stop going back if we hit 3 consecutive empty years
+        if (emptyYears >= 3) break;
+      } else {
+        emptyYears = 0;
+      }
+      allTournEvents = [...allTournEvents, ...tEvents];
+      allLeagueEvents = [...allLeagueEvents, ...lEvents];
+      allDoublesEvents = [...allDoublesEvents, ...dEvents];
+      await sleep(200);
+    }
+
+    const allEvents = dedup([...allTournEvents, ...allLeagueEvents, ...allDoublesEvents]);
+    const counts = {
+      tournament: allEvents.filter(e => e.type === 'tournament').length,
+      league: allEvents.filter(e => e.type === 'league').length,
+      doubles: allEvents.filter(e => e.type === 'doubles').length,
+    };
+
+    // Fetch rating history + ratings detail
+    showLoading('Fetching rating history...');
+    let ratingHistory = [], ratingsDetail = [];
+    try {
+      const histHtml = await fetchViaProxy(`${baseUrl}/history`);
+      const histDoc = new DOMParser().parseFromString(histHtml, 'text/html');
+      ratingHistory = parseRatingHistory(histDoc);
+      ratingsDetail = parseRatingsDetail(histDoc);
+    } catch(e) { /* silently skip */ }
+
+    renderDashboard({ name, rating, pdgaNum: num, location, classification, memberStatus, events: allEvents, counts, ratingHistory, ratingsDetail });
+
+  } catch(e) {
+    console.error(e);
+    showError(`Could not load player data.
+      <a href="https://www.pdga.com/player/${num}" target="_blank" style="color:var(--accent);display:block;margin-top:8px;">Open PDGA profile directly →</a>
+      <div class="debug-box">${e.message.replace(/\n/g,'<br>')}</div>`);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'LOAD PLAYER';
+}
+
+function parseRatingHistory(doc) {
+  const entries = [];
+  const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+
+  function parseDate(str) {
+    // "10-Jun-2025" — PDGA actual format
+    const m1 = str.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+    if (m1) {
+      const mo = MONTHS[m1[2].toLowerCase()];
+      if (mo !== undefined) return new Date(+m1[3], mo, +m1[1]);
+    }
+    // "2025-06-10"
+    const m2 = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
+    const d = new Date(str);
+    return isNaN(d) ? null : d;
+  }
+
+  const rows = doc.querySelectorAll('table tbody tr, .view-player-history tbody tr, .view-content table tbody tr');
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    if (cells.length < 2) return;
+    const texts = cells.map(c => c.textContent.trim());
+    let rating = null, dateObj = null, label = texts[0];
+    texts.forEach(t => {
+      const rMatch = t.match(/^(\d{3,4})$/);
+      if (rMatch && +rMatch[1] >= 400 && +rMatch[1] <= 1100) rating = +rMatch[1];
+      if (!dateObj) dateObj = parseDate(t);
+    });
+    if (rating && dateObj) {
+      const iso = dateObj.toISOString().split('T')[0];
+      entries.push({ date: iso, rating, label });
+    }
+  });
+  entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return entries;
+}
+
+function parseRatingsDetail(doc) {
+  // The history page contains a "Ratings Detail" tab with round-by-round data
+  // Columns: Tournament, Tier, Date, Division, Round, Score, Rating, Evaluated, Included
+  const rounds = [];
+  const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+
+  function parseAnyDate(str) {
+    const m = str.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})/);
+    if (m) {
+      const mo = MONTHS[m[2].toLowerCase()];
+      if (mo !== undefined) return new Date(+m[3], mo, +m[1]);
+    }
+    const d = new Date(str); return isNaN(d) ? null : d;
+  }
+
+  // Find all tables — the ratings detail table has 8+ columns
+  doc.querySelectorAll('table').forEach(table => {
+    const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim().toLowerCase());
+    if (!headers.some(h => h.includes('round')) || !headers.some(h => h.includes('score'))) return;
+
+    const colMap = {};
+    headers.forEach((h, i) => {
+      if (h.includes('tournament') || h.includes('event')) colMap.name = i;
+      else if (h.includes('tier')) colMap.tier = i;
+      else if (h.includes('date')) colMap.date = i;
+      else if (h.includes('division') || h.includes('div')) colMap.division = i;
+      else if (h.includes('round')) colMap.round = i;
+      else if (h.includes('score')) colMap.score = i;
+      else if (h.includes('rating')) colMap.rating = i;
+      else if (h.includes('evaluated')) colMap.evaluated = i;
+      else if (h.includes('included')) colMap.included = i;
+    });
+
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cells = Array.from(row.querySelectorAll('td'));
+      if (cells.length < 4) return;
+      const get = (key) => colMap[key] !== undefined ? cells[colMap[key]]?.textContent.trim() : '';
+      const name = get('name');
+      const dateStr = get('date');
+      if (!name || !dateStr) return;
+      const dateObj = parseAnyDate(dateStr);
+      rounds.push({
+        name,
+        tier:      get('tier'),
+        date:      dateStr,
+        dateObj,
+        division:  get('division'),
+        round:     get('round'),
+        score:     get('score'),
+        rating:    get('rating'),
+        evaluated: get('evaluated'),
+        included:  get('included'),
+      });
+    });
+  });
+
+  return rounds;
+}
+
+function getRoundsForEvent(eventName, ratingsDetail) {
+  if (!ratingsDetail.length) return [];
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const evNorm = norm(eventName);
+  return ratingsDetail.filter(r => norm(r.name).includes(evNorm) || evNorm.includes(norm(r.name)));
+}
+
+function dedup(events) {
+  const seen = new Set();
+  return events.filter(e => {
+    const key = e.name.toLowerCase().trim() + '__' + e.date;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function extractPlayerName(doc, num) {
+  for (const sel of ['h1.page-title','.pane-page-title h1','h1#page-title','h1']) {
+    const el = doc.querySelector(sel);
+    if (el) {
+      const t = el.textContent.trim().replace(/\s*#?\d{4,7}\s*$/, '').trim();
+      if (t && t.length > 1 && !t.toLowerCase().includes('pdga')) return t;
+    }
+  }
+  return `Player #${num}`;
+}
+
+function extractRating(doc) {
+  for (const sel of ['.current-rating','.player-rating','[class*="current-rating"]','.views-field-rating']) {
+    const el = doc.querySelector(sel);
+    if (el) { const m = el.textContent.match(/\b(\d{3,4})\b/); if (m && +m[1]>100) return m[1]; }
+  }
+  const m = (doc.body?.textContent||'').match(/[Rr]ating[:\s]+(\d{3,4})/);
+  return m ? m[1] : '—';
+}
+
+function extractField(doc, sels) {
+  for (const s of sels) {
+    try { const el = doc.querySelector(s); if (el) { const t = el.textContent.trim(); if (t && t.length < 80) return t; } } catch(e){}
+  }
+  return null;
+}
+
+function parseEvents(doc, arr, type) {
+  let rows = [];
+  for (const sel of ['table.views-table tbody tr','.view-player-results tbody tr','.view-id-player_results tbody tr','.view-content table tbody tr','table tbody tr']) {
+    const found = doc.querySelectorAll(sel);
+    if (found.length > 0) { rows = Array.from(found); break; }
+  }
+  if (!rows.length) {
+    const divs = doc.querySelectorAll('.views-row');
+    if (divs.length) rows = Array.from(divs);
+  }
+
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td, .views-field'));
+    if (cells.length < 2) return;
+    const texts = cells.map(c => c.textContent.trim());
+
+    // Skip header/total rows
+    const rowText = texts.join(' ');
+    if (/Totals?:/i.test(rowText) && texts.some(t => t.match(/Totals?:/i))) return;
+    if (texts.some(t => /^(Event|Tournament|Name|Date|Place|Finish|Points)$/i.test(t) && cells.length < 4)) return;
+
+    // Find event name (prefer linked cell)
+    let name = '', link = '';
+    for (const cell of cells) {
+      const a = cell.querySelector('a');
+      if (a) {
+        const t = a.textContent.trim();
+        if (t.length > 4 && !/^\d+$/.test(t) && !/^[A-Z]{1,4}$/.test(t)) {
+          name = t;
+          link = a.getAttribute('href') || '';
+          if (link && !link.startsWith('http')) link = 'https://www.pdga.com' + link;
+          break;
+        }
+      }
+    }
+    if (!name) {
+      let longest = '';
+      texts.forEach(t => { if (t.length > longest.length && !/^\d+$/.test(t) && t.length > 4 && !/^[A-Z]{1,4}$/.test(t)) longest = t; });
+      name = longest;
+    }
+    if (!name || name.length < 4) return;
+
+    // Skip division label rows like "MA4 · Mixed Amateur 4"
+    if (/^[A-Z]{2,4}\d?\s*[·•]/.test(name)) return;
+    if (/^(Am|Pro|Open|Mixed)\s+Totals?/i.test(name)) return;
+
+    // Find date
+    let date = '';
+    texts.forEach(t => {
+      if (!date) {
+        const m = t.match(/\b\d{4}-\d{2}-\d{2}\b/) ||
+                  t.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?\s+\d{1,2},?\s+\d{4}\b/i) ||
+                  t.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+        if (m) date = m[0];
+      }
+    });
+
+    // Find place
+    let place = '—';
+    for (let i = cells.length-1; i >= 0; i--) {
+      const t = texts[i];
+      if (/^T?\d+$/.test(t) && +t.replace('T','') > 0 && +t.replace('T','') < 2000) { place = t; break; }
+      if (/^(DNF|DNS|DQ|WD|CUT)$/i.test(t)) { place = t.toUpperCase(); break; }
+    }
+
+    arr.push({ name, date, place, link, type });
+  });
+}
+
+let activeFilter = 'all';
+
+function filterEvents(type) {
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
+  const list = document.querySelector('.events-list');
+
+  // Show/hide rows
+  document.querySelectorAll('.event-row').forEach(r => {
+    let hide = false;
+    if (type === 'wins') hide = !['1','T1'].includes((r.dataset.place||'').replace(/^#/,''));
+    else if (type === 'podiums') hide = !['1','2','3','T1','T2','T3'].includes((r.dataset.place||'').replace(/^#/,''));
+    else if (type !== 'all') hide = r.dataset.type !== type;
+    r.classList.toggle('hidden', hide);
+  });
+
+  // Sort by place for wins/podiums
+  if (list && (type === 'wins' || type === 'podiums')) {
+    const rows = Array.from(list.querySelectorAll('.event-row'));
+    const placeVal = r => {
+      const n = parseInt(String(r.dataset.place||'').replace(/^#/,'').replace('T',''));
+      return isNaN(n) ? 999 : n;
+    };
+    rows.sort((a, b) => placeVal(a) - placeVal(b));
+    rows.forEach(r => list.appendChild(r));
+  }
+
+  const n = document.querySelectorAll('.event-row:not(.hidden)').length;
+  const el = document.getElementById('vc');
+  if (el) {
+    const label = type === 'wins' ? 'WINS' : type === 'podiums' ? 'PODIUMS' : 'EVENTS';
+    el.textContent = n + ' ' + label;
+  }
+  activeFilter = type;
+}
+
+function setFilter(type) { filterEvents(type); }
+
+function toggleRounds(rowId, panelId, eventName) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const isOpen = panel.classList.contains('open');
+
+  // Close all panels first
+  document.querySelectorAll('.round-detail.open').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.event-row.active-row').forEach(r => r.classList.remove('active-row'));
+
+  if (isOpen) return; // toggle off
+
+  // Find rounds for this event
+  const rounds = getRoundsForEvent(eventName, window._ratingsDetail || []);
+
+  if (!rounds.length) {
+    panel.innerHTML = `<div class="no-rounds">No round detail available for this event.</div>`;
+  } else {
+    let t = `<table class="round-table">
+      <thead><tr>
+        <th>Round</th><th>Date</th><th>Division</th><th>Tier</th>
+        <th>Score</th><th>Rating</th><th>Evaluated</th><th>Included</th>
+      </tr></thead><tbody>`;
+    const ratings = rounds.map(r => +r.rating).filter(Boolean);
+    const maxR = Math.max(...ratings), minR = Math.min(...ratings);
+    rounds.forEach(r => {
+      const rc = +r.rating === maxR ? 'round-rating-high' : +r.rating === minR && rounds.length > 1 ? 'round-rating-low' : '';
+      t += `<tr>
+        <td>${r.round || '—'}</td>
+        <td>${r.date || '—'}</td>
+        <td>${r.division || '—'}</td>
+        <td>${r.tier || '—'}</td>
+        <td>${r.score || '—'}</td>
+        <td class="${rc}">${r.rating || '—'}</td>
+        <td>${r.evaluated || '—'}</td>
+        <td>${r.included || '—'}</td>
+      </tr>`;
+    });
+    t += `</tbody></table>`;
+    panel.innerHTML = t;
+  }
+
+  panel.classList.add('open');
+  document.getElementById(rowId)?.classList.add('active-row');
+}
+
+function renderDashboard({ name, rating, pdgaNum, location, classification, memberStatus, events=[], counts, ratingHistory=[], ratingsDetail=[] }) {
+  const initials = (name||'').split(' ').filter(w=>w).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const normPlace = p => String(p||'').replace(/^#/,'').trim();
+  const isWin = e => ['1','T1'].includes(normPlace(e.place));
+  const isPodium = e => ['1','2','3','T1','T2','T3'].includes(normPlace(e.place));
+  const wins = events.filter(isWin).length;
+  const podiums = events.filter(isPodium).length;
+
+  let h = `<div class="fade-in">
+    <div class="player-card">
+      <div class="player-avatar">${initials||'?'}</div>
+      <div class="player-info">
+        <h2>${name||'Player #'+pdgaNum}</h2>
+        <div class="player-meta">
+          <span class="badge">#${pdgaNum}</span>
+          ${location?`<span class="badge">${location}</span>`:''}
+          ${classification?`<span class="badge">${classification}</span>`:''}
+          ${memberStatus?`<span class="badge warm">${memberStatus}</span>`:''}
+        </div>
+      </div>
+      <div class="rating-display">
+        <div class="rating-number">${rating||'—'}</div>
+        <div class="rating-label">Player Rating</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card" onclick="filterEvents('all')" style="cursor:pointer" title="Show all events"><div class="stat-value">${events.length}</div><div class="stat-label">Total Events</div></div>
+      <div class="stat-card" onclick="filterEvents('tournament')" style="cursor:pointer" title="Show tournaments"><div class="stat-value">${counts.tournament}</div><div class="stat-label">Tournaments</div></div>
+      <div class="stat-card" onclick="filterEvents('league')" style="cursor:pointer" title="Show leagues"><div class="stat-value">${counts.league}</div><div class="stat-label">Leagues</div></div>
+      <div class="stat-card" onclick="filterEvents('doubles')" style="cursor:pointer" title="Show doubles"><div class="stat-value">${counts.doubles}</div><div class="stat-label">Doubles</div></div>
+      <div class="stat-card" onclick="filterEvents('wins')" style="cursor:pointer" title="Show wins"><div class="stat-value">${wins}</div><div class="stat-label">Wins</div></div>
+      <div class="stat-card" onclick="filterEvents('podiums')" style="cursor:pointer" title="Show podiums"><div class="stat-value">${podiums}</div><div class="stat-label">Podiums</div></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="dot"></div><h3>RATING HISTORY</h3></div>
+      ${ratingHistory.length >= 2
+        ? `<div class="chart-wrap"><div class="chart-canvas-wrap"><canvas id="ratingChart"></canvas></div></div>`
+        : `<div class="chart-empty">No rating history data available yet.</div>`}
+    </div>`;
+
+  if (events.length > 0) {
+    const hasL = counts.league > 0, hasD = counts.doubles > 0;
+    h += `<div class="section">
+      <div class="section-header"><div class="dot"></div><h3>ALL RESULTS</h3>
+        <span id="vc" style="margin-left:auto;font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;">${events.length} EVENTS</span>
+      </div>`;
+    if (hasL || hasD) {
+      h += `<div class="type-tabs">
+        <div class="type-tab active" data-type="all" onclick="setFilter('all')">ALL (${events.length})</div>
+        <div class="type-tab" data-type="tournament" onclick="setFilter('tournament')"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:5px;vertical-align:middle;"></span>TOURNAMENTS (${counts.tournament})</div>`;
+      if (hasL) h += `<div class="type-tab" data-type="league" onclick="setFilter('league')"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:5px;vertical-align:middle;"></span>LEAGUES (${counts.league})</div>`;
+      if (hasD) h += `<div class="type-tab" data-type="doubles" onclick="setFilter('doubles')"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue);margin-right:5px;vertical-align:middle;"></span>DOUBLES (${counts.doubles})</div>`;
+      h += `</div>`;
+    }
+    h += `<div class="events-list">`;
+    events.forEach((e, idx) => {
+      const p = String(e.place||''), pn = parseInt(p.replace('T',''));
+      const pc = ['1','T1'].includes(p)?'place-1':pn<=3?'place-top':'place-mid';
+      const dp = p&&p!=='—'?(p.match(/^\d+$/)?'#'+p:p):'—';
+      const dc = e.type==='league'?'dot-league':e.type==='doubles'?'dot-doubles':'dot-tournament';
+      const nm = e.link?`<a href="${e.link}" target="_blank">${e.name}</a>`:e.name;
+      const normP = p.replace(/^#/,'');
+      h += `<div class="event-row" data-type="${e.type||'tournament'}" data-place="${normP}" data-idx="${idx}">
+        <div class="type-dot ${dc}"></div>
+        <div class="event-name">${nm}</div>
+        <div class="event-date">${e.date||''}</div>
+        <div class="event-place ${pc}">${dp}</div>
+      </div>`;
+    });
+    h += `</div></div>`;
+  } else {
+    h += `<div class="section"><div class="section-header"><div class="dot"></div><h3>RESULTS</h3></div>
+      <div class="status" style="padding:32px;">No results found.<br><small style="color:var(--text-dim);margin-top:8px;display:block;">Only PDGA-sanctioned events appear here.</small></div></div>`;
+  }
+
+  h += `<div style="text-align:center;padding:8px 0 4px;">
+    <a href="https://www.pdga.com/player/${pdgaNum}" target="_blank" style="font-size:12px;color:var(--text-muted);text-decoration:none;font-family:'IBM Plex Mono',monospace;">→ VIEW FULL PROFILE ON PDGA.COM</a>
+  </div></div>`;
+
+  document.getElementById('content').innerHTML = h;
+  if (ratingHistory.length >= 2) drawRatingChart(ratingHistory);
+  // Round detail expand disabled — PDGA blocks proxy access to ratings detail page
+}
+
+function drawRatingChart(history) {
+  const canvas = document.getElementById('ratingChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Resize canvas to container
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  const W = canvas.width, H = canvas.height;
+  const pad = { top: 32, right: 16, bottom: 16, left: 44 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  const ratings = history.map(d => d.rating);
+  const minR = Math.min(...ratings) - 20;
+  const maxR = Math.max(...ratings) + 20;
+  const rRange = maxR - minR;
+
+  const toX = i => pad.left + (i / (history.length - 1)) * chartW;
+  const toY = r => pad.top + chartH - ((r - minR) / rRange) * chartH;
+
+  // Background grid lines
+  const gridRatings = [];
+  const step = rRange > 100 ? 50 : 25;
+  for (let r = Math.ceil(minR / step) * step; r <= maxR; r += step) gridRatings.push(r);
+
+  gridRatings.forEach(r => {
+    const y = toY(r);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + chartW, y);
+    ctx.strokeStyle = 'rgba(61,49,40,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#5c4f42';
+    ctx.font = '10px IBM Plex Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(r, pad.left - 6, y + 3);
+  });
+
+  // Gradient fill under line
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+  grad.addColorStop(0, 'rgba(200,149,90,0.25)');
+  grad.addColorStop(1, 'rgba(200,149,90,0)');
+  ctx.beginPath();
+  history.forEach((d, i) => {
+    i === 0 ? ctx.moveTo(toX(i), toY(d.rating)) : ctx.lineTo(toX(i), toY(d.rating));
+  });
+  ctx.lineTo(toX(history.length - 1), pad.top + chartH);
+  ctx.lineTo(toX(0), pad.top + chartH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  history.forEach((d, i) => {
+    i === 0 ? ctx.moveTo(toX(i), toY(d.rating)) : ctx.lineTo(toX(i), toY(d.rating));
+  });
+  ctx.strokeStyle = '#c8955a';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Dots + tooltips on hover
+  history.forEach((d, i) => {
+    const x = toX(i), y = toY(d.rating);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8955a';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#1c1610';
+    ctx.fill();
+  });
+
+  // Hover interaction
+  canvas._history = history;
+  canvas._toX = toX;
+  canvas._toY = toY;
+  canvas._pad = pad;
+  canvas._chartW = chartW;
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    // Find nearest point
+    let closest = 0, minDist = Infinity;
+    history.forEach((d, i) => { const dx = Math.abs(toX(i) - mx); if (dx < minDist) { minDist = dx; closest = i; } });
+    const d = history[closest];
+    const x = toX(closest), y = toY(d.rating);
+    // Redraw base chart first
+    drawRatingChart(history);
+    // Highlight dot
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2);
+    ctx.fillStyle = '#e0b482'; ctx.fill();
+    // Tooltip — show below dot if too close to top, above otherwise
+    const label = `${d.rating}  ·  ${d.label || d.date}`;
+    ctx.font = '12px monospace';
+    ctx.textBaseline = 'alphabetic';
+    const tw = ctx.measureText(label).width;
+    const pad2 = 12;
+    const boxW = tw + pad2 * 2;
+    const boxH = 28;
+    let tx = x - boxW / 2;
+    if (tx < 4) tx = 4;
+    if (tx + boxW > W - 4) tx = W - boxW - 4;
+    const showBelow = y < H / 2;
+    const ty = showBelow ? y + 10 : y - boxH - 10;
+    // Draw box
+    ctx.fillStyle = 'rgba(28,22,16,0.97)';
+    ctx.beginPath();
+    ctx.roundRect(tx, ty, boxW, boxH, 5);
+    ctx.fill();
+    ctx.strokeStyle = '#c8955a';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Draw text — same font, positioned inside box
+    ctx.font = '12px monospace';
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#e0b482';
+    ctx.fillText(label, tx + pad2, ty + 19);
+  };
+  canvas.onmouseleave = () => drawRatingChart(history);
+}
+
+function showLoading(msg) {
+  document.getElementById('content').innerHTML = `<div class="status"><div class="spinner"></div>${msg}</div>`;
+}
+function showError(msg) {
+  document.getElementById('content').innerHTML = `<div class="status error"><div style="font-size:28px;margin-bottom:12px;">⚠️</div>${msg}</div>`;
+}
+
+document.getElementById('pdgaInput').addEventListener('keydown', e => { if(e.key==='Enter') handleSearch(); });
+window.addEventListener('load', () => { const v = document.getElementById('pdgaInput').value.trim(); if (/^\d{4,7}$/.test(v)) loadPlayer(); });
+</script>
+</body>
+</html>
