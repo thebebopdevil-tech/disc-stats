@@ -632,18 +632,29 @@ function parseEvents(doc, arr, type) {
 let activeFilter = 'all';
 
 function filterEvents(type) {
-  // Update tab UI if it exists
   document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
-  // Update stat card highlight
-  document.querySelectorAll('.stat-card').forEach(c => c.style.borderColor = '');
+  const list = document.querySelector('.events-list');
+
   // Show/hide rows
   document.querySelectorAll('.event-row').forEach(r => {
     let hide = false;
-    if (type === 'wins')    hide = !['1','T1'].includes((r.dataset.place||'').replace(/^#/,''));
+    if (type === 'wins') hide = !['1','T1'].includes((r.dataset.place||'').replace(/^#/,''));
     else if (type === 'podiums') hide = !['1','2','3','T1','T2','T3'].includes((r.dataset.place||'').replace(/^#/,''));
     else if (type !== 'all') hide = r.dataset.type !== type;
     r.classList.toggle('hidden', hide);
   });
+
+  // Sort by place for wins/podiums
+  if (list && (type === 'wins' || type === 'podiums')) {
+    const rows = Array.from(list.querySelectorAll('.event-row'));
+    const placeVal = r => {
+      const n = parseInt(String(r.dataset.place||'').replace(/^#/,'').replace('T',''));
+      return isNaN(n) ? 999 : n;
+    };
+    rows.sort((a, b) => placeVal(a) - placeVal(b));
+    rows.forEach(r => list.appendChild(r));
+  }
+
   const n = document.querySelectorAll('.event-row:not(.hidden)').length;
   const el = document.getElementById('vc');
   if (el) {
@@ -762,7 +773,7 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
       const dc = e.type==='league'?'dot-league':e.type==='doubles'?'dot-doubles':'dot-tournament';
       const nm = e.link?`<a href="${e.link}" target="_blank">${e.name}</a>`:e.name;
       const normP = p.replace(/^#/,'');
-      h += `<div class="event-row" data-type="${e.type||'tournament'}" data-place="${normP}">
+      h += `<div class="event-row" data-type="${e.type||'tournament'}" data-place="${normP}" data-idx="${idx}">
         <div class="type-dot ${dc}"></div>
         <div class="event-name">${nm}</div>
         <div class="event-date">${e.date||''}</div>
