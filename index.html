@@ -78,7 +78,8 @@
   .rating-number { font-family:'Playfair Display',serif; font-size:48px; color:var(--accent); line-height:1; font-weight:700; }
   .rating-label { font-size:10px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-top:3px; }
   .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:16px; }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; text-align:center; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; text-align:center; transition:border-color 0.15s, background 0.15s; }
+  .stat-card:hover { border-color:var(--accent); background:var(--surface2); }
   .stat-value { font-family:'Playfair Display',serif; font-size:28px; color:var(--accent); line-height:1; font-weight:700; }
   .stat-label { font-size:10px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-top:4px; font-weight:500; }
   .section { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:16px; }
@@ -170,7 +171,7 @@
     </div>
   </header>
   <div class="search-bar">
-    <input type="text" id="pdgaInput" placeholder="PDGA number or player name..." value="292023" />
+    <input type="text" id="pdgaInput" placeholder="PDGA number or player name..." value="108874" />
     <button id="searchBtn" onclick="handleSearch()">SEARCH</button>
   </div>
   <div id="searchHint" style="display:none;margin:-12px 0 16px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:10px;">
@@ -367,7 +368,7 @@ async function loadPlayer() {
     const memberStatus = extractField(doc, ['.membership-status','.views-field-membership-status']);
 
     // Fetch stats pages — start from join year, up to current year
-    const joinYear = 2024;
+    const joinYear = 2010;
     const currentYear = new Date().getFullYear();
     const years = [];
     for (let y = joinYear; y <= currentYear; y++) years.push(y);
@@ -629,14 +630,30 @@ function parseEvents(doc, arr, type) {
 }
 
 let activeFilter = 'all';
-function setFilter(type) {
-  activeFilter = type;
+
+function filterEvents(type) {
+  // Update tab UI if it exists
   document.querySelectorAll('.type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
-  document.querySelectorAll('.event-row').forEach(r => r.classList.toggle('hidden', type !== 'all' && r.dataset.type !== type));
-  document.querySelectorAll('.round-detail').forEach(r => { r.classList.toggle('hidden', type !== 'all' && r.dataset.type !== type); if (type !== 'all' && r.dataset.type !== type) r.classList.remove('open'); });
+  // Update stat card highlight
+  document.querySelectorAll('.stat-card').forEach(c => c.style.borderColor = '');
+  // Show/hide rows
+  document.querySelectorAll('.event-row').forEach(r => {
+    let hide = false;
+    if (type === 'wins')    hide = !['1','T1'].includes((r.dataset.place||'').replace(/^#/,''));
+    else if (type === 'podiums') hide = !['1','2','3','T1','T2','T3'].includes((r.dataset.place||'').replace(/^#/,''));
+    else if (type !== 'all') hide = r.dataset.type !== type;
+    r.classList.toggle('hidden', hide);
+  });
   const n = document.querySelectorAll('.event-row:not(.hidden)').length;
-  const el = document.getElementById('vc'); if (el) el.textContent = n + ' EVENTS';
+  const el = document.getElementById('vc');
+  if (el) {
+    const label = type === 'wins' ? 'WINS' : type === 'podiums' ? 'PODIUMS' : 'EVENTS';
+    el.textContent = n + ' ' + label;
+  }
+  activeFilter = type;
 }
+
+function setFilter(type) { filterEvents(type); }
 
 function toggleRounds(rowId, panelId, eventName) {
   const panel = document.getElementById(panelId);
@@ -685,8 +702,11 @@ function toggleRounds(rowId, panelId, eventName) {
 
 function renderDashboard({ name, rating, pdgaNum, location, classification, memberStatus, events=[], counts, ratingHistory=[], ratingsDetail=[] }) {
   const initials = (name||'').split(' ').filter(w=>w).map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  const wins = events.filter(e=>['1','T1'].includes(String(e.place))).length;
-  const podiums = events.filter(e=>['1','2','3','T1','T2','T3'].includes(String(e.place))).length;
+  const normPlace = p => String(p||'').replace(/^#/,'').trim();
+  const isWin = e => ['1','T1'].includes(normPlace(e.place));
+  const isPodium = e => ['1','2','3','T1','T2','T3'].includes(normPlace(e.place));
+  const wins = events.filter(isWin).length;
+  const podiums = events.filter(isPodium).length;
 
   let h = `<div class="fade-in">
     <div class="player-card">
@@ -706,12 +726,12 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
       </div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value">${events.length}</div><div class="stat-label">Total Events</div></div>
-      <div class="stat-card"><div class="stat-value">${counts.tournament}</div><div class="stat-label">Tournaments</div></div>
-      <div class="stat-card"><div class="stat-value">${counts.league}</div><div class="stat-label">Leagues</div></div>
-      <div class="stat-card"><div class="stat-value">${counts.doubles}</div><div class="stat-label">Doubles</div></div>
-      <div class="stat-card"><div class="stat-value">${wins}</div><div class="stat-label">Wins</div></div>
-      <div class="stat-card"><div class="stat-value">${podiums}</div><div class="stat-label">Podiums</div></div>
+      <div class="stat-card" onclick="filterEvents('all')" style="cursor:pointer" title="Show all events"><div class="stat-value">${events.length}</div><div class="stat-label">Total Events</div></div>
+      <div class="stat-card" onclick="filterEvents('tournament')" style="cursor:pointer" title="Show tournaments"><div class="stat-value">${counts.tournament}</div><div class="stat-label">Tournaments</div></div>
+      <div class="stat-card" onclick="filterEvents('league')" style="cursor:pointer" title="Show leagues"><div class="stat-value">${counts.league}</div><div class="stat-label">Leagues</div></div>
+      <div class="stat-card" onclick="filterEvents('doubles')" style="cursor:pointer" title="Show doubles"><div class="stat-value">${counts.doubles}</div><div class="stat-label">Doubles</div></div>
+      <div class="stat-card" onclick="filterEvents('wins')" style="cursor:pointer" title="Show wins"><div class="stat-value">${wins}</div><div class="stat-label">Wins</div></div>
+      <div class="stat-card" onclick="filterEvents('podiums')" style="cursor:pointer" title="Show podiums"><div class="stat-value">${podiums}</div><div class="stat-label">Podiums</div></div>
     </div>
     <div class="section">
       <div class="section-header"><div class="dot"></div><h3>RATING HISTORY</h3></div>
@@ -741,7 +761,8 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
       const dp = p&&p!=='—'?(p.match(/^\d+$/)?'#'+p:p):'—';
       const dc = e.type==='league'?'dot-league':e.type==='doubles'?'dot-doubles':'dot-tournament';
       const nm = e.link?`<a href="${e.link}" target="_blank">${e.name}</a>`:e.name;
-      h += `<div class="event-row" data-type="${e.type||'tournament'}">
+      const normP = p.replace(/^#/,'');
+      h += `<div class="event-row" data-type="${e.type||'tournament'}" data-place="${normP}">
         <div class="type-dot ${dc}"></div>
         <div class="event-name">${nm}</div>
         <div class="event-date">${e.date||''}</div>
