@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDGA Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f0a;
+    --surface: #111711;
+    --surface2: #172017;
+    --border: #1e2e1e;
+    --accent: #4ade80;
+    --accent2: #86efac;
+    --accent-dim: #166534;
+    --text: #e8f5e8;
+    --text-muted: #6b8f6b;
+    --text-dim: #3d5c3d;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --blue: #60a5fa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(74,222,128,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(74,222,128,0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo svg { width: 22px; height: 22px; fill: var(--bg); }
+
+  .header-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Search */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .search-bar input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar input::placeholder { color: var(--text-dim); }
+
+  .search-bar button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .search-bar button:hover { opacity: 0.9; }
+  .search-bar button:active { transform: scale(0.97); }
+  .search-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Status */
+  .status {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .status.error { color: var(--red); }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Player Card */
+  .player-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .player-avatar {
+    width: 64px; height: 64px;
+    background: var(--accent-dim);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .player-info { flex: 1; min-width: 150px; }
+
+  .player-info h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .player-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .badge.green { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: var(--accent2); }
+
+  .rating-display {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .rating-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .rating-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Section */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-header h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+  }
+
+  .section-header .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* Rating Chart */
+  .chart-container {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  canvas {
+    width: 100%;
+    max-height: 180px;
+  }
+
+  /* Events Table */
+  .events-list { }
+
+  .event-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background 0.15s;
+  }
+
+  .event-row:last-child { border-bottom: none; }
+  .event-row:hover { background: var(--surface2); }
+
+  .event-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .event-place {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .place-1 { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .place-top { background: rgba(74,222,128,0.1); color: var(--accent2); border: 1px solid rgba(74,222,128,0.3); }
+  .place-mid { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .pdga-credit {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .pdga-credit a { color: var(--text-muted); text-decoration: none; }
+  .pdga-credit a:hover { color: var(--accent); }
+
+  /* Fade in */
+  .fade-in {
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .player-card { flex-direction: column; align-items: flex-start; }
+    .rating-display { align-self: flex-end; }
+    .event-row { grid-template-columns: 1fr auto; }
+    .event-date { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3" fill="white"/>
+        <path d="M12 2 C7 2 3 6 3 11 C3 8 7 6 12 6 C17 6 21 8 21 11 C21 6 17 2 12 2Z" fill="rgba(0,0,0,0.3)"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>DISC STATS</h1>
+      <p>PDGA Player Dashboard</p>
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="pdgaInput" placeholder="Enter PDGA number..." value="292023" />
+    <button id="searchBtn" onclick="loadPlayer()">LOAD PLAYER</button>
+  </div>
+
+  <div id="content">
+    <div class="status">
+      <div style="font-size: 32px; margin-bottom: 12px;">🥏</div>
+      Enter your PDGA number to load your stats
+    </div>
+  </div>
+
+  <div class="pdga-credit">
+    Player data © <a href="https://www.pdga.com" target="_blank">PDGA</a>
+  </div>
+</div>
+
+<script>
+async function loadPlayer() {
+  const num = document.getElementById('pdgaInput').value.trim();
+  if (!num) return;
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'LOADING...';
+
+  showLoading();
+
+  try {
+    // Use a CORS proxy to fetch PDGA profile
+    const url = `https://www.pdga.com/player/${num}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    
+    const res = await fetch(proxyUrl);
+    const data = await res.json();
+    
+    if (!data.contents) throw new Error('No data returned');
+    
+    const html = data.contents;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    parseAndRender(doc, num);
+  } catch(e) {
+    showError('Could not load player data. The PDGA website may be blocking requests. Try again in a moment.');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'LOAD PLAYER';
+}
+
+function parseAndRender(doc, pdgaNum) {
+  try {
+    // Extract player name
+    const nameEl = doc.querySelector('.pane-page-title h1') || 
+                   doc.querySelector('h1.page-title') ||
+                   doc.querySelector('h1');
+    const name = nameEl ? nameEl.textContent.trim() : `Player #${pdgaNum}`;
+
+    // Extract rating
+    const ratingEl = doc.querySelector('.current-rating') ||
+                     doc.querySelector('[class*="rating"]');
+    let rating = '—';
+    if (ratingEl) {
+      const match = ratingEl.textContent.match(/\d{3,4}/);
+      if (match) rating = match[0];
+    }
+
+    // Extract location, classification, status
+    const location = extractText(doc, '.location', '.field-name-field-city');
+    const classification = extractText(doc, '.classification', '.field-name-field-pdga-class');
+    const memberStatus = extractText(doc, '.membership-status', '.field-name-field-membership-status');
+
+    // Extract events from the tournament results table
+    const events = [];
+    const rows = doc.querySelectorAll('table.views-table tbody tr, .view-player-results tbody tr, table tbody tr');
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 3) {
+        const eventName = cells[0]?.textContent?.trim() || cells[1]?.textContent?.trim();
+        const dateText = findDate(row);
+        const placeText = findPlace(row, cells);
+        
+        if (eventName && eventName.length > 2 && !eventName.match(/^\d+$/)) {
+          events.push({
+            name: eventName,
+            date: dateText,
+            place: placeText
+          });
+        }
+      }
+    });
+
+    // Extract rating history if available
+    const ratingRows = doc.querySelectorAll('.ratings-history tr, [class*="rating"] tr');
+    const ratingHistory = [];
+    ratingRows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 2) {
+        const dateMatch = cells[0]?.textContent?.match(/\d{4}/);
+        const ratingMatch = cells[1]?.textContent?.match(/\d{3,4}/);
+        if (dateMatch && ratingMatch) {
+          ratingHistory.push({ date: cells[0].textContent.trim(), rating: parseInt(ratingMatch[0]) });
+        }
+      }
+    });
+
+    renderDashboard({ name, rating, pdgaNum, location, classification, memberStatus, events, ratingHistory });
+  } catch(e) {
+    // Fallback: show what we can
+    renderMinimal(pdgaNum);
+  }
+}
+
+function extractText(doc, ...selectors) {
+  for (const sel of selectors) {
+    const el = doc.querySelector(sel);
+    if (el) return el.textContent.trim();
+  }
+  return null;
+}
+
+function findDate(row) {
+  const text = row.textContent;
+  const match = text.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}\b/) ||
+                text.match(/\d{4}-\d{2}-\d{2}/) ||
+                text.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/);
+  return match ? match[0] : '';
+}
+
+function findPlace(row, cells) {
+  for (let i = cells.length - 1; i >= 0; i--) {
+    const t = cells[i].textContent.trim();
+    if (t.match(/^\d+$/) && parseInt(t) < 500) return t;
+    if (t.match(/^(T\d+|DNF|DNS|DQ)$/i)) return t;
+  }
+  return '—';
+}
+
+function renderDashboard({ name, rating, pdgaNum, location, classification, memberStatus, events, ratingHistory }) {
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  
+  // Stats
+  const totalEvents = events.length;
+  const wins = events.filter(e => e.place === '1').length;
+  const podiums = events.filter(e => ['1','2','3'].includes(e.place)).length;
+
+  // Sort events by date (most recent first) - best effort
+  const sortedEvents = [...events].slice(0, 20);
+
+  let html = `<div class="fade-in">`;
+
+  // Player card
+  html += `
+    <div class="player-card">
+      <div class="player-avatar">${initials || '?'}</div>
+      <div class="player-info">
+        <h2>${name}</h2>
+        <div class="player-meta">
+          <span class="badge"># ${pdgaNum}</span>
+          ${location ? `<span class="badge">${location}</span>` : ''}
+          ${classification ? `<span class="badge">${classification}</span>` : ''}
+          ${memberStatus ? `<span class="badge green">${memberStatus}</span>` : ''}
+        </div>
+      </div>
+      <div class="rating-display">
+        <div class="rating-number">${rating}</div>
+        <div class="rating-label">Player Rating</div>
+      </div>
+    </div>`;
+
+  // Stats row
+  html += `<div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">${totalEvents || '—'}</div>
+      <div class="stat-label">Events</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${wins || '0'}</div>
+      <div class="stat-label">Wins</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${podiums || '0'}</div>
+      <div class="stat-label">Podiums</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${rating}</div>
+      <div class="stat-label">Rating</div>
+    </div>
+  </div>`;
+
+  // Events list
+  if (sortedEvents.length > 0) {
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="dot"></div>
+        <h3>TOURNAMENT RESULTS</h3>
+      </div>
+      <div class="events-list">`;
+    
+    sortedEvents.forEach(e => {
+      const placeClass = e.place === '1' ? 'place-1' :
+                         ['2','3','4','5'].includes(e.place) ? 'place-top' : 'place-mid';
+      html += `
+        <div class="event-row">
+          <div class="event-name">${e.name}</div>
+          <div class="event-date">${e.date}</div>
+          <div class="event-place ${placeClass}">${e.place !== '—' ? '#' + e.place : '—'}</div>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  } else {
+    // No events parsed — show a note
+    html += `
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>TOURNAMENT RESULTS</h3></div>
+        <div class="status">No tournament results found — you may not have played sanctioned events yet, or the data couldn't be parsed from PDGA's site.</div>
+      </div>`;
+  }
+
+  // PDGA link
+  html += `
+    <div style="text-align:center; padding: 8px 0 4px;">
+      <a href="https://www.pdga.com/player/${pdgaNum}" target="_blank" 
+         style="font-size:12px; color: var(--text-muted); text-decoration:none; font-family:'DM Mono',monospace; letter-spacing:0.5px;">
+        → VIEW FULL PROFILE ON PDGA.COM
+      </a>
+    </div>`;
+
+  html += `</div>`;
+
+  document.getElementById('content').innerHTML = html;
+}
+
+function renderMinimal(pdgaNum) {
+  document.getElementById('content').innerHTML = `
+    <div class="fade-in">
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>PROFILE</h3></div>
+        <div class="status">
+          Player #${pdgaNum} found, but couldn't parse profile data.<br><br>
+          <a href="https://www.pdga.com/player/${pdgaNum}" target="_blank" 
+             style="color: var(--accent); text-decoration:none;">
+            View on PDGA.com →
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showLoading() {
+  document.getElementById('content').innerHTML = `
+    <div class="status">
+      <div class="spinner"></div>
+      Fetching player data...
+    </div>`;
+}
+
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="status error">
+      <div style="font-size:28px;margin-bottom:12px;">⚠️</div>
+      ${msg}
+    </div>`;
+}
+
+// Allow Enter key
+document.getElementById('pdgaInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadPlayer();
+});
+
+// Auto-load on start
+window.addEventListener('load', () => loadPlayer());
+</script>
+</body>
+</html>

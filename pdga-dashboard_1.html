@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDGA Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f0a;
+    --surface: #111711;
+    --surface2: #172017;
+    --border: #1e2e1e;
+    --accent: #4ade80;
+    --accent2: #86efac;
+    --accent-dim: #166534;
+    --text: #e8f5e8;
+    --text-muted: #6b8f6b;
+    --text-dim: #3d5c3d;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --blue: #60a5fa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(74,222,128,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(74,222,128,0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo svg { width: 22px; height: 22px; fill: var(--bg); }
+
+  .header-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Search */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .search-bar input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar input::placeholder { color: var(--text-dim); }
+
+  .search-bar button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .search-bar button:hover { opacity: 0.9; }
+  .search-bar button:active { transform: scale(0.97); }
+  .search-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Status */
+  .status {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .status.error { color: var(--red); }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Player Card */
+  .player-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .player-avatar {
+    width: 64px; height: 64px;
+    background: var(--accent-dim);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .player-info { flex: 1; min-width: 150px; }
+
+  .player-info h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .player-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .badge.green { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: var(--accent2); }
+
+  .rating-display {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .rating-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .rating-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Section */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-header h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+  }
+
+  .section-header .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* Rating Chart */
+  .chart-container {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  canvas {
+    width: 100%;
+    max-height: 180px;
+  }
+
+  /* Events Table */
+  .events-list { }
+
+  .event-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background 0.15s;
+  }
+
+  .event-row:last-child { border-bottom: none; }
+  .event-row:hover { background: var(--surface2); }
+
+  .event-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .event-place {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .place-1 { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .place-top { background: rgba(74,222,128,0.1); color: var(--accent2); border: 1px solid rgba(74,222,128,0.3); }
+  .place-mid { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .pdga-credit {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .pdga-credit a { color: var(--text-muted); text-decoration: none; }
+  .pdga-credit a:hover { color: var(--accent); }
+
+  /* Fade in */
+  .fade-in {
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .player-card { flex-direction: column; align-items: flex-start; }
+    .rating-display { align-self: flex-end; }
+    .event-row { grid-template-columns: 1fr auto; }
+    .event-date { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3" fill="white"/>
+        <path d="M12 2 C7 2 3 6 3 11 C3 8 7 6 12 6 C17 6 21 8 21 11 C21 6 17 2 12 2Z" fill="rgba(0,0,0,0.3)"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>DISC STATS</h1>
+      <p>PDGA Player Dashboard</p>
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="pdgaInput" placeholder="Enter PDGA number..." value="292023" />
+    <button id="searchBtn" onclick="loadPlayer()">LOAD PLAYER</button>
+  </div>
+
+  <div id="content">
+    <div class="status">
+      <div style="font-size: 32px; margin-bottom: 12px;">🥏</div>
+      Enter your PDGA number to load your stats
+    </div>
+  </div>
+
+  <div class="pdga-credit">
+    Player data © <a href="https://www.pdga.com" target="_blank">PDGA</a>
+  </div>
+</div>
+
+<script>
+const PROXY = 'https://api.allorigins.win/get?url=';
+
+async function fetchPage(url) {
+  const res = await fetch(PROXY + encodeURIComponent(url));
+  const data = await res.json();
+  if (!data.contents) throw new Error('Empty response');
+  return data.contents;
+}
+
+async function loadPlayer() {
+  const num = document.getElementById('pdgaInput').value.trim();
+  if (!num) return;
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'LOADING...';
+  showLoading('Fetching player profile...');
+
+  try {
+    // Fetch first page
+    const baseUrl = `https://www.pdga.com/player/${num}`;
+    const html = await fetchPage(baseUrl);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Check if player exists
+    const notFound = doc.querySelector('.messages--error, .error') || 
+                     doc.title?.toLowerCase().includes('not found');
+    if (!html.includes('pdga') || html.length < 500) throw new Error('Player not found');
+
+    // --- Player Info ---
+    const name = extractPlayerName(doc, num);
+    const rating = extractRating(doc);
+    const location = extractField(doc, [
+      '.location', '.field-name-field-city', '[class*="location"]',
+      '.views-field-city', '.player-city'
+    ]);
+    const classification = extractField(doc, [
+      '.classification', '[class*="class"]', '.views-field-class',
+      '.field-name-field-classification'
+    ]);
+    const memberStatus = extractField(doc, [
+      '.membership-status', '[class*="membership"]', '.views-field-membership'
+    ]);
+
+    // --- Tournament Results: collect ALL pages ---
+    showLoading('Fetching tournament history...');
+    const allEvents = [];
+    
+    // Parse first page events
+    parseEvents(doc, allEvents);
+
+    // Check for pagination - PDGA uses ?page=N
+    const pagerLinks = doc.querySelectorAll('.pager a, .pagination a, [class*="pager"] a');
+    const pageNums = new Set();
+    pagerLinks.forEach(a => {
+      const match = (a.href || '').match(/[?&]page=(\d+)/);
+      if (match) pageNums.add(parseInt(match[1]));
+    });
+
+    // Also check for "last page" link to determine total pages
+    let maxPage = 0;
+    doc.querySelectorAll('a[href*="page="]').forEach(a => {
+      const m = a.href.match(/page=(\d+)/);
+      if (m) maxPage = Math.max(maxPage, parseInt(m[1]));
+    });
+
+    // Fetch remaining pages (up to page 10 to avoid infinite loops)
+    const pagesToFetch = [];
+    for (let p = 1; p <= Math.min(maxPage, 10); p++) pagesToFetch.push(p);
+
+    if (pagesToFetch.length > 0) {
+      showLoading(`Fetching all ${pagesToFetch.length + 1} pages of results...`);
+      for (const p of pagesToFetch) {
+        try {
+          const pageHtml = await fetchPage(`${baseUrl}?page=${p}`);
+          const pageDoc = parser.parseFromString(pageHtml, 'text/html');
+          const before = allEvents.length;
+          parseEvents(pageDoc, allEvents);
+          // Stop if no new events found on this page
+          if (allEvents.length === before) break;
+        } catch(e) {
+          break; // Stop on error
+        }
+      }
+    }
+
+    renderDashboard({ name, rating, pdgaNum: num, location, classification, memberStatus, events: allEvents });
+
+  } catch(e) {
+    showError(`Could not load player data.<br><br>
+      <a href="https://www.pdga.com/player/${num}" target="_blank" style="color:var(--accent)">
+        Open your PDGA profile directly →
+      </a><br><br>
+      <small style="color:var(--text-dim)">The proxy service may be temporarily unavailable. Try again in a moment.</small>`);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'LOAD PLAYER';
+}
+
+function extractPlayerName(doc, pdgaNum) {
+  // Try multiple selectors
+  const selectors = [
+    'h1.page-title', '.pane-page-title h1', 'h1#page-title',
+    '.player-name', 'h1', '.page-header h1'
+  ];
+  for (const sel of selectors) {
+    const el = doc.querySelector(sel);
+    if (el) {
+      // Strip PDGA number from name if present
+      const text = el.textContent.trim().replace(/\s*#?\d{4,7}\s*$/, '').trim();
+      if (text && text.length > 1 && !text.toLowerCase().includes('pdga')) return text;
+    }
+  }
+  return `Player #${pdgaNum}`;
+}
+
+function extractRating(doc) {
+  // Common PDGA rating selectors
+  const selectors = [
+    '.current-rating', '.player-rating', '[class*="current-rating"]',
+    '.field-name-field-rating', '.views-field-rating'
+  ];
+  for (const sel of selectors) {
+    const el = doc.querySelector(sel);
+    if (el) {
+      const m = el.textContent.match(/\b(\d{3,4})\b/);
+      if (m && parseInt(m[1]) > 100) return m[1];
+    }
+  }
+  // Search all text for rating pattern near "rating" keyword
+  const allText = doc.body?.textContent || '';
+  const ratingMatch = allText.match(/[Rr]ating[:\s]+(\d{3,4})/);
+  if (ratingMatch) return ratingMatch[1];
+  return '—';
+}
+
+function extractField(doc, selectors) {
+  for (const sel of selectors) {
+    try {
+      const el = doc.querySelector(sel);
+      if (el) {
+        const text = el.textContent.trim();
+        if (text && text.length > 0 && text.length < 60) return text;
+      }
+    } catch(e) {}
+  }
+  return null;
+}
+
+function parseEvents(doc, eventsArr) {
+  // PDGA uses various table structures — try them all
+  // Main tournament history table
+  const tableSelectors = [
+    'table.views-table tbody tr',
+    '.view-player-results tbody tr',
+    '.view-id-player_results tbody tr',
+    'table.tour-result tbody tr',
+    '.player-results tbody tr',
+    'table tbody tr'
+  ];
+
+  let rows = [];
+  for (const sel of tableSelectors) {
+    const found = doc.querySelectorAll(sel);
+    if (found.length > 0) {
+      rows = found;
+      break;
+    }
+  }
+
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    if (cells.length < 2) return;
+
+    // Get all cell texts
+    const texts = cells.map(c => c.textContent.trim());
+
+    // Find event name — usually the cell with a link or longest text
+    let eventName = '';
+    let eventLink = '';
+    for (const cell of cells) {
+      const a = cell.querySelector('a');
+      if (a && a.textContent.trim().length > 3) {
+        const txt = a.textContent.trim();
+        // Skip if it's just a number or very short
+        if (!txt.match(/^\d+$/) && txt.length > 3) {
+          eventName = txt;
+          eventLink = a.href || '';
+          break;
+        }
+      }
+    }
+    // Fallback: find longest non-numeric cell text
+    if (!eventName) {
+      let longest = '';
+      texts.forEach(t => { if (t.length > longest.length && !t.match(/^\d+$/) && t.length > 3) longest = t; });
+      eventName = longest;
+    }
+
+    if (!eventName) return;
+
+    // Find date
+    let date = '';
+    texts.forEach(t => {
+      if (!date) {
+        const m = t.match(/\b\d{4}-\d{2}-\d{2}\b/) ||
+                  t.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d{1,2},?\s+\d{4}\b/i) ||
+                  t.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+        if (m) date = m[0];
+      }
+    });
+
+    // Find place/finish
+    let place = '—';
+    // Look for a cell that's purely a number (place)
+    for (let i = cells.length - 1; i >= 0; i--) {
+      const t = texts[i];
+      if (t.match(/^T?\d+$/) && parseInt(t.replace('T','')) < 1000) {
+        place = t;
+        break;
+      }
+      if (t.match(/^(DNF|DNS|DQ|WD)$/i)) {
+        place = t;
+        break;
+      }
+    }
+
+    // Deduplicate
+    const isDup = eventsArr.some(e => e.name === eventName && e.date === date);
+    if (!isDup) {
+      eventsArr.push({ name: eventName, date, place, link: eventLink });
+    }
+  });
+}
+
+function renderDashboard({ name, rating, pdgaNum, location, classification, memberStatus, events }) {
+  const initials = name.split(' ').filter(w => w).map(w => w[0]).join('').slice(0,2).toUpperCase();
+  
+  const totalEvents = events.length;
+  const wins = events.filter(e => e.place === '1' || e.place === 'T1').length;
+  const podiums = events.filter(e => ['1','2','3','T1','T2','T3'].includes(e.place)).length;
+
+  let html = `<div class="fade-in">`;
+
+  // Player card
+  html += `
+    <div class="player-card">
+      <div class="player-avatar">${initials || '?'}</div>
+      <div class="player-info">
+        <h2>${name}</h2>
+        <div class="player-meta">
+          <span class="badge"># ${pdgaNum}</span>
+          ${location ? `<span class="badge">${location}</span>` : ''}
+          ${classification ? `<span class="badge">${classification}</span>` : ''}
+          ${memberStatus ? `<span class="badge green">${memberStatus}</span>` : ''}
+        </div>
+      </div>
+      <div class="rating-display">
+        <div class="rating-number">${rating}</div>
+        <div class="rating-label">Player Rating</div>
+      </div>
+    </div>`;
+
+  // Stats
+  html += `<div class="stats-grid">
+    <div class="stat-card"><div class="stat-value">${totalEvents || '0'}</div><div class="stat-label">Events</div></div>
+    <div class="stat-card"><div class="stat-value">${wins}</div><div class="stat-label">Wins</div></div>
+    <div class="stat-card"><div class="stat-value">${podiums}</div><div class="stat-label">Podiums</div></div>
+    <div class="stat-card"><div class="stat-value">${rating}</div><div class="stat-label">Rating</div></div>
+  </div>`;
+
+  // Events list
+  if (events.length > 0) {
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="dot"></div>
+        <h3>TOURNAMENT RESULTS</h3>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;">${events.length} EVENTS</span>
+      </div>
+      <div class="events-list">`;
+    
+    events.forEach(e => {
+      const placeNum = parseInt(e.place?.replace('T',''));
+      const placeClass = (e.place === '1' || e.place === 'T1') ? 'place-1' :
+                         (placeNum <= 3) ? 'place-top' :
+                         (placeNum <= 10) ? 'place-mid' : 'place-mid';
+      const displayPlace = e.place !== '—' ? (e.place.match(/^\d+$/) ? `#${e.place}` : e.place) : '—';
+      const nameHtml = e.link 
+        ? `<a href="${e.link}" target="_blank" style="color:var(--text);text-decoration:none;">${e.name}</a>`
+        : e.name;
+      html += `
+        <div class="event-row">
+          <div class="event-name">${nameHtml}</div>
+          <div class="event-date">${e.date || ''}</div>
+          <div class="event-place ${placeClass}">${displayPlace}</div>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  } else {
+    html += `
+      <div class="section">
+        <div class="section-header"><div class="dot"></div><h3>TOURNAMENT RESULTS</h3></div>
+        <div class="status" style="padding:32px;">
+          No tournament results found.<br>
+          <small style="color:var(--text-dim);margin-top:8px;display:block;">
+            Results only appear for PDGA-sanctioned events.
+          </small>
+        </div>
+      </div>`;
+  }
+
+  html += `
+    <div style="text-align:center;padding:8px 0 4px;">
+      <a href="https://www.pdga.com/player/${pdgaNum}" target="_blank"
+         style="font-size:12px;color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;letter-spacing:0.5px;">
+        → VIEW FULL PROFILE ON PDGA.COM
+      </a>
+    </div>`;
+
+  html += `</div>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function showLoading(msg = 'Fetching player data...') {
+  document.getElementById('content').innerHTML = `
+    <div class="status">
+      <div class="spinner"></div>
+      ${msg}
+    </div>`;
+}
+
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="status error">
+      <div style="font-size:28px;margin-bottom:12px;">⚠️</div>
+      ${msg}
+    </div>`;
+}
+
+document.getElementById('pdgaInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadPlayer();
+});
+
+window.addEventListener('load', () => loadPlayer());
+</script>
+</body>
+</html>
