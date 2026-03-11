@@ -623,11 +623,22 @@ header {
 }
 .league-standings-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  flex-direction: column;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   margin-bottom: 6px;
+}
+.row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.row-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+  padding-left: 46px;
 }
 .league-standings-row.player-row {
   background: var(--accent-light);
@@ -696,6 +707,7 @@ header {
 }
 .round-chip.negative { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
 .round-chip.positive { background: var(--orange-light); color: var(--orange); border: 1px solid #f5c9a0; }
+.round-chip.even { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
 
 
 .courses-search {
@@ -906,40 +918,76 @@ header {
     <div class="league-card">
       <div class="league-card-header">
         <div class="league-name">Kaknäs Kyldisc 6: 2025–2026</div>
-        <div class="league-division">Mixed Amateur 2</div>
+        <div class="league-division">Mixed Amateur 2 · Best 5 of 32</div>
       </div>
       <div class="league-standings-row leader-row">
-        <div class="row-position">1st</div>
-        <div class="row-name">Kim Campese</div>
-        <div class="row-score score-negative">−25</div>
+        <div class="row-main">
+          <div class="row-position">1st</div>
+          <div class="row-name">Kim Campese</div>
+          <div class="row-score score-negative">−25</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−8</span>
+          <span class="round-chip negative">−6</span>
+          <span class="round-chip negative">−6</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−1</span>
+        </div>
       </div>
       <div class="league-standings-row player-row">
-        <div class="row-position">2nd</div>
-        <div class="row-name bold">Gustaf Wiking</div>
-        <div class="row-score score-negative">−18</div>
+        <div class="row-main">
+          <div class="row-position">2nd</div>
+          <div class="row-name bold">Gustaf Wiking</div>
+          <div class="row-score score-negative">−18</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−3</span>
+          <span class="round-chip negative">−2</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">3rd</div>
-        <div class="row-name">Erik Lindström</div>
-        <div class="row-score score-negative">−16</div>
+        <div class="row-main">
+          <div class="row-position">3rd</div>
+          <div class="row-name">Jonas Lundberg</div>
+          <div class="row-score score-negative">−4</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−1</span>
+          <span class="round-chip negative">−1</span>
+          <span class="round-chip negative">−1</span>
+          <span class="round-chip negative">−1</span>
+          <span class="round-chip even">E</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">4th</div>
-        <div class="row-name">Anna Söderberg</div>
-        <div class="row-score score-negative">−14</div>
+        <div class="row-main">
+          <div class="row-position">4th</div>
+          <div class="row-name">Thomas Älgevik</div>
+          <div class="row-score score-positive">+3</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−3</span>
+          <span class="round-chip even">E</span>
+          <span class="round-chip positive">+1</span>
+          <span class="round-chip positive">+5</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">5th</div>
-        <div class="row-name">Marcus Karlsson</div>
-        <div class="row-score score-negative">−12</div>
-      </div>
-      <div class="league-rounds">
-        <span class="rounds-label">Best 5 of 32</span>
-        <span class="round-chip negative">−5</span>
-        <span class="round-chip negative">−4</span>
-        <span class="round-chip negative">−4</span>
-        <span class="round-chip negative">−3</span>
-        <span class="round-chip negative">−2</span>
+        <div class="row-main">
+          <div class="row-position">5th</div>
+          <div class="row-name">Ola Lundberg</div>
+          <div class="row-score score-positive">+5</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−2</span>
+          <span class="round-chip negative">−1</span>
+          <span class="round-chip positive">+6</span>
+          <span class="round-chip positive">+7</span>
+        </div>
       </div>
     </div>
 
@@ -947,21 +995,27 @@ header {
     <div class="league-card">
       <div class="league-card-header">
         <div class="league-name">Spillevink Tour 2026</div>
-        <div class="league-division">Mixed Pro Open</div>
+        <div class="league-division">Mixed Pro Open · 1 of 3 rounds played</div>
       </div>
       <div class="league-standings-row leader-row">
-        <div class="row-position">1st</div>
-        <div class="row-name">Kalle Bülow</div>
-        <div class="row-score score-positive">+11</div>
+        <div class="row-main">
+          <div class="row-position">1st</div>
+          <div class="row-name">Kalle Bülow</div>
+          <div class="row-score score-positive">+11</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip positive">+11</span>
+        </div>
       </div>
       <div class="league-standings-row player-row">
-        <div class="row-position">2nd</div>
-        <div class="row-name bold">Gustaf Wiking</div>
-        <div class="row-score score-positive">+13</div>
-      </div>
-      <div class="league-rounds">
-        <span class="rounds-label">Best 3 of 3</span>
-        <span class="round-chip positive">+13</span>
+        <div class="row-main">
+          <div class="row-position">2nd</div>
+          <div class="row-name bold">Gustaf Wiking</div>
+          <div class="row-score score-positive">+13</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip positive">+13</span>
+        </div>
       </div>
     </div>
 
@@ -969,42 +1023,88 @@ header {
     <div class="league-card">
       <div class="league-card-header">
         <div class="league-name">Stockholms Vintertour 2025/26</div>
-        <div class="league-division">Öppet för alla</div>
+        <div class="league-division">Öppet för alla · Best 5 of 16</div>
       </div>
       <div class="league-standings-row leader-row">
-        <div class="row-position">1st</div>
-        <div class="row-name">Peter Bygde</div>
-        <div class="row-score score-negative">−28</div>
+        <div class="row-main">
+          <div class="row-position">1st</div>
+          <div class="row-name">Peter Bygde</div>
+          <div class="row-score score-negative">−28</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−8</span>
+          <span class="round-chip negative">−7</span>
+          <span class="round-chip negative">−6</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−3</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">2nd</div>
-        <div class="row-name">Lars Henriksson</div>
-        <div class="row-score score-negative">−22</div>
+        <div class="row-main">
+          <div class="row-position">2nd</div>
+          <div class="row-name">Lars Henriksson</div>
+          <div class="row-score score-negative">−22</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−7</span>
+          <span class="round-chip negative">−6</span>
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−3</span>
+          <span class="round-chip negative">−1</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">3rd</div>
-        <div class="row-name">Maria Johansson</div>
-        <div class="row-score score-negative">−19</div>
+        <div class="row-main">
+          <div class="row-position">3rd</div>
+          <div class="row-name">Maria Johansson</div>
+          <div class="row-score score-negative">−19</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−6</span>
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−3</span>
+          <span class="round-chip negative">−1</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">4th</div>
-        <div class="row-name">Anders Ström</div>
-        <div class="row-score score-negative">−17</div>
+        <div class="row-main">
+          <div class="row-position">4th</div>
+          <div class="row-name">Anders Ström</div>
+          <div class="row-score score-negative">−17</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−2</span>
+          <span class="round-chip negative">−1</span>
+        </div>
       </div>
       <div class="league-standings-row">
-        <div class="row-position">5th</div>
-        <div class="row-name">Emma Lindqvist</div>
-        <div class="row-score score-negative">−15</div>
+        <div class="row-main">
+          <div class="row-position">5th</div>
+          <div class="row-name">Emma Lindqvist</div>
+          <div class="row-score score-negative">−15</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−5</span>
+          <span class="round-chip negative">−4</span>
+          <span class="round-chip negative">−3</span>
+          <span class="round-chip negative">−2</span>
+          <span class="round-chip negative">−1</span>
+        </div>
       </div>
       <div class="standings-separator">· · ·</div>
       <div class="league-standings-row player-row">
-        <div class="row-position">T63rd</div>
-        <div class="row-name bold">Gustaf Wiking</div>
-        <div class="row-score score-negative">−3</div>
-      </div>
-      <div class="league-rounds">
-        <span class="rounds-label">Best 1 of 16</span>
-        <span class="round-chip negative">−3</span>
+        <div class="row-main">
+          <div class="row-position">T63rd</div>
+          <div class="row-name bold">Gustaf Wiking</div>
+          <div class="row-score score-negative">−3</div>
+        </div>
+        <div class="row-chips">
+          <span class="round-chip negative">−3</span>
+        </div>
       </div>
     </div>
 
