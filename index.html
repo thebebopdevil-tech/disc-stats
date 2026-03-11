@@ -563,6 +563,133 @@ header {
 .courses-page.active { display: block; }
 .stats-page { display: block; }
 .stats-page.hidden { display: none; }
+/* STANDINGS PAGE */
+.standings-page { display: none; }
+.standings-page.active { display: block; }
+
+.standings-header {
+  margin-bottom: 24px;
+}
+.standings-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.standings-player {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.standings-mock-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin-left: 10px;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
+}
+.league-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.league-card-header {
+  margin-bottom: 14px;
+}
+.league-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.league-division {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.league-standings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+.league-standings-row.player-row {
+  background: var(--accent-light);
+  border: 1.5px solid var(--accent);
+}
+.league-standings-row.leader-row {
+  background: var(--surface2);
+}
+.row-position {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 36px;
+}
+.player-row .row-position {
+  color: var(--accent);
+}
+.row-name {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+}
+.row-name.bold { font-weight: 800; }
+.row-score {
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+}
+.player-row .row-score { color: var(--accent); }
+.score-negative { color: var(--green) !important; }
+.score-positive { color: var(--orange) !important; }
+.score-even { color: var(--text-muted) !important; }
+.league-rounds {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rounds-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+.round-chip {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--surface2);
+  color: var(--text);
+}
+.round-chip.negative { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.round-chip.positive { background: var(--orange-light); color: var(--orange); border: 1px solid #f5c9a0; }
+
 
 .courses-search {
   display: flex;
@@ -714,6 +841,10 @@ header {
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
           Courses
         </div>
+        <div class="nav-item" id="navStandings" onclick="showPage('standings')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="9" width="3" height="4" rx="1" fill="currentColor"/><rect x="5.5" y="5.5" width="3" height="7.5" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="11" rx="1" fill="currentColor"/><circle cx="11.5" cy="1" r="1.2" fill="currentColor"/></svg>
+          Standings
+        </div>
       </div>
     </div>
   </header>
@@ -755,6 +886,86 @@ header {
     </div>
   </div><!-- end courses-page -->
 
+
+  <!-- STANDINGS PAGE -->
+  <div class="standings-page" id="standingsPage">
+
+    <div class="standings-header">
+      <div class="standings-title">League Standings</div>
+      <div class="standings-player">Gustaf Wiking <span class="standings-mock-badge">Mock-up</span></div>
+    </div>
+
+    <!-- League 1 -->
+    <div class="league-card">
+      <div class="league-card-header">
+        <div class="league-name">Kaknäs Kyldisc 6: 2025–2026</div>
+        <div class="league-division">Mixed Amateur 2</div>
+      </div>
+      <div class="league-standings-row leader-row">
+        <div class="row-position">1st</div>
+        <div class="row-name">Kim Campese</div>
+        <div class="row-score score-negative">−25</div>
+      </div>
+      <div class="league-standings-row player-row">
+        <div class="row-position">2nd</div>
+        <div class="row-name bold">Gustaf Wiking</div>
+        <div class="row-score score-negative">−18</div>
+      </div>
+      <div class="league-rounds">
+        <span class="rounds-label">Best 5 of 32</span>
+        <span class="round-chip negative">−5</span>
+        <span class="round-chip negative">−4</span>
+        <span class="round-chip negative">−4</span>
+        <span class="round-chip negative">−3</span>
+        <span class="round-chip negative">−2</span>
+      </div>
+    </div>
+
+    <!-- League 2 -->
+    <div class="league-card">
+      <div class="league-card-header">
+        <div class="league-name">Spillevink Tour 2026</div>
+        <div class="league-division">Mixed Pro Open</div>
+      </div>
+      <div class="league-standings-row leader-row">
+        <div class="row-position">1st</div>
+        <div class="row-name">Kalle Bülow</div>
+        <div class="row-score score-positive">+11</div>
+      </div>
+      <div class="league-standings-row player-row">
+        <div class="row-position">2nd</div>
+        <div class="row-name bold">Gustaf Wiking</div>
+        <div class="row-score score-positive">+13</div>
+      </div>
+      <div class="league-rounds">
+        <span class="rounds-label">Best 3 of 3</span>
+        <span class="round-chip positive">+13</span>
+      </div>
+    </div>
+
+    <!-- League 3 -->
+    <div class="league-card">
+      <div class="league-card-header">
+        <div class="league-name">Stockholms Vintertour 2025/26</div>
+        <div class="league-division">Öppet för alla</div>
+      </div>
+      <div class="league-standings-row leader-row">
+        <div class="row-position">1st</div>
+        <div class="row-name">Peter Bygde</div>
+        <div class="row-score score-negative">−28</div>
+      </div>
+      <div class="league-standings-row player-row">
+        <div class="row-position">T63rd</div>
+        <div class="row-name bold">Gustaf Wiking</div>
+        <div class="row-score score-negative">−3</div>
+      </div>
+      <div class="league-rounds">
+        <span class="rounds-label">Best 1 of 16</span>
+        <span class="round-chip negative">−3</span>
+      </div>
+    </div>
+
+  </div><!-- end standings-page -->
 </div><!-- end app -->
 
 <script>
@@ -1418,25 +1629,34 @@ document.addEventListener('click', e => {
 function showPage(page) {
   document.getElementById('navDropdown').classList.remove('open');
   currentPage = page;
-  const statsPage = document.getElementById('statsPage');
-  const coursesPage = document.getElementById('coursesPage');
-  const subtitle = document.getElementById('headerSubtitle');
-  const navStats = document.getElementById('navStats');
-  const navCourses = document.getElementById('navCourses');
+  const statsPage     = document.getElementById('statsPage');
+  const coursesPage   = document.getElementById('coursesPage');
+  const standingsPage = document.getElementById('standingsPage');
+  const subtitle      = document.getElementById('headerSubtitle');
+  const navStats      = document.getElementById('navStats');
+  const navCourses    = document.getElementById('navCourses');
+  const navStandings  = document.getElementById('navStandings');
+
+  statsPage.classList.add('hidden');
+  coursesPage.classList.remove('active');
+  standingsPage.classList.remove('active');
+  navStats.classList.remove('nav-item-active');
+  navCourses.classList.remove('nav-item-active');
+  navStandings.classList.remove('nav-item-active');
 
   if (page === 'stats') {
     statsPage.classList.remove('hidden');
-    coursesPage.classList.remove('active');
     subtitle.textContent = 'Work in Progress';
     navStats.classList.add('nav-item-active');
-    navCourses.classList.remove('nav-item-active');
-  } else {
-    statsPage.classList.add('hidden');
+  } else if (page === 'courses') {
     coursesPage.classList.add('active');
     subtitle.textContent = 'Course Finder';
-    navStats.classList.remove('nav-item-active');
     navCourses.classList.add('nav-item-active');
     initCoursesPage();
+  } else if (page === 'standings') {
+    standingsPage.classList.add('active');
+    subtitle.textContent = 'Standings';
+    navStandings.classList.add('nav-item-active');
   }
 }
 
