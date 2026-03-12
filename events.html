@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disc Golf Overview – Upcoming Events</title>
+<link rel="icon" type="image/png" sizes="64x64" href="data:image/png;base64,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">
+<meta name="theme-color" content="#c5007a">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/api/maps-key"></script>
+<script>
+(function() {
+  const key = window.MAPS_API_KEY;
+  if (!key) return;
+  const s = document.createElement('script');
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places,geometry&callback=onMapsLoaded';
+  s.async = true; s.defer = true;
+  document.head.appendChild(s);
+})();
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f2f3f7;
+  --surface: #ffffff;
+  --surface2: #f7f7fb;
+  --border: #e4e4ec;
+  --accent: #c5007a;
+  --accent-light: #fce8f3;
+  --accent-dark: #9a005f;
+  --text: #18181f;
+  --text-muted: #68687a;
+  --text-dim: #a8a8bc;
+  --shadow-sm: 0 1px 3px rgba(20,20,40,0.07);
+  --shadow: 0 3px 14px rgba(20,20,40,0.09), 0 1px 3px rgba(20,20,40,0.05);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+}
+body { background: var(--bg); font-family: 'DM Sans', sans-serif; min-height: 100vh; color: var(--text); overflow-x: hidden; }
+.app { max-width: 900px; margin: 0 auto; padding: 32px 16px 52px; }
+
+/* HEADER */
+header { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
+.logo { width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0; overflow: hidden; box-shadow: 0 2px 8px rgba(197,0,122,0.3); }
+.logo img { width: 46px; height: 46px; display: block; }
+.header-text h1 { font-size: 21px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.header-text p { font-size: 12px; color: var(--text-muted); margin-top: 1px; font-weight: 400; }
+
+/* NAV */
+.nav-menu { margin-left: auto; position: relative; }
+.nav-trigger {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill); padding: 8px 14px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+  color: var(--text); cursor: pointer; box-shadow: var(--shadow-sm);
+  white-space: nowrap; transition: border-color 0.15s, color 0.15s;
+}
+.nav-trigger:hover { border-color: var(--accent); color: var(--accent); }
+.nav-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  min-width: 160px; z-index: 100; overflow: hidden;
+}
+.nav-dropdown.open { display: block; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 12px 16px;
+  font-size: 13.5px; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; transition: background 0.12s, color 0.12s;
+  border-bottom: 1px solid var(--border); text-decoration: none;
+}
+.nav-item:last-child { border-bottom: none; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.nav-item-active { color: var(--accent); }
+.nav-item.nav-item-active svg { color: var(--accent); }
+
+/* SEARCH BAR */
+.search-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+.search-bar input {
+  flex: 1; background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill); padding: 11px 20px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s; box-shadow: var(--shadow-sm);
+}
+.search-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(197,0,122,0.1); }
+.search-bar input::placeholder { color: var(--text-dim); }
+.btn-secondary {
+  background: var(--surface); color: var(--text); border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill); padding: 10px 18px;
+  font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0; box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: var(--radius-pill); padding: 11px 26px;
+  font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 14px;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(197,0,122,0.25);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.btn-primary:hover { background: var(--accent-dark); box-shadow: 0 3px 12px rgba(197,0,122,0.35); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+/* TIER FILTERS */
+.tier-filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+.tier-btn {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill); padding: 6px 16px;
+  font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; box-shadow: var(--shadow-sm);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.tier-btn:hover { border-color: var(--accent); color: var(--accent); }
+.tier-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(197,0,122,0.25); }
+
+/* MAP */
+#mapContainer {
+  width: 100%; height: 440px; border-radius: var(--radius); overflow: hidden;
+  border: 1.5px solid var(--border); box-shadow: var(--shadow);
+  margin-bottom: 14px; background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+}
+#map { width: 100%; height: 100%; }
+.map-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-muted); font-size: 14px; text-align: center; }
+
+/* SECTION HEADER */
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.section-header h3 { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+#eventCount { font-size: 12px; color: var(--text-dim); margin-left: auto; font-family: 'DM Mono', monospace; }
+
+/* EVENT CARDS */
+.event-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 8px;
+  box-shadow: var(--shadow-sm); display: grid;
+  grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: start;
+  cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.event-card:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(197,0,122,0.06), var(--shadow-sm); }
+.event-card.hidden { display: none; }
+.tier-badge {
+  font-family: 'DM Mono', monospace; font-size: 10.5px; font-weight: 600;
+  padding: 3px 8px; border-radius: var(--radius-pill); white-space: nowrap;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted);
+  margin-top: 1px;
+}
+.tier-b  { background: #e8efff; color: #2244aa; border-color: #b8ccf8; }
+.tier-a  { background: #fff3e0; color: #b84800; border-color: #f5c9a0; }
+.tier-major { background: var(--accent-light); color: var(--accent); border-color: #f0a0d0; }
+.event-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 5px; line-height: 1.3; }
+.event-name a { color: inherit; text-decoration: none; }
+.event-name a:hover { color: var(--accent); text-decoration: underline; }
+.event-meta { font-size: 12px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 10px; }
+.event-meta span { display: flex; align-items: center; gap: 4px; }
+.event-dist { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); text-align: right; white-space: nowrap; margin-top: 2px; }
+
+/* STATUS */
+.status { text-align: center; padding: 52px 24px; color: var(--text-muted); font-size: 14px; line-height: 1.8; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+.status.error { color: #c0392b; }
+.spinner { width: 28px; height: 28px; border: 2.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pdga-credit { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 28px; }
+.pdga-credit a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 500px) {
+  #mapContainer { height: 300px; }
+  .search-bar { flex-wrap: wrap; }
+  .btn-secondary { flex: 1; text-align: center; justify-content: center; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <img src="data:image/png;base64,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" alt="Disc Golf Overview" width="46" height="46">
+    </div>
+    <div class="header-text">
+      <h1>Disc Golf Overview</h1>
+      <p>Upcoming Events</p>
+    </div>
+    <div class="nav-menu" id="navMenu">
+      <button class="nav-trigger" onclick="toggleNav()" aria-label="Menu">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span>Menu</span>
+      </button>
+      <div class="nav-dropdown" id="navDropdown">
+        <a class="nav-item" href="index.html">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="3" height="6" rx="1" fill="currentColor"/><rect x="5.5" y="4" width="3" height="9" rx="1" fill="currentColor"/><rect x="10" y="1" width="3" height="12" rx="1" fill="currentColor"/></svg>
+          Player Stats
+        </a>
+        <a class="nav-item" href="index.html#courses" onclick="sessionStorage.setItem('page','courses')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
+          Courses
+        </a>
+        <a class="nav-item" href="index.html#standings" onclick="sessionStorage.setItem('page','standings')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="9" width="3" height="4" rx="1" fill="currentColor"/><rect x="5.5" y="5.5" width="3" height="7.5" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="11" rx="1" fill="currentColor"/><circle cx="11.5" cy="1" r="1.2" fill="currentColor"/></svg>
+          Standings
+        </a>
+        <a class="nav-item nav-item-active" href="events.html">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><line x1="1" y1="6.5" x2="13" y2="6.5" stroke="currentColor" stroke-width="1.2"/><line x1="4.5" y1="1" x2="4.5" y2="4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="9.5" y1="1" x2="9.5" y2="4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Events
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="locationInput" placeholder="City or country…" />
+    <button class="btn-secondary" id="nearMeBtn" onclick="nearMe()">📍 Near me</button>
+    <button class="btn-primary" id="searchBtn" onclick="doSearch()">Search</button>
+  </div>
+
+  <div class="tier-filters">
+    <button class="tier-btn active" data-tier="all" onclick="setTier('all')">All tiers</button>
+    <button class="tier-btn" data-tier="C" onclick="setTier('C')">C</button>
+    <button class="tier-btn" data-tier="B" onclick="setTier('B')">B</button>
+    <button class="tier-btn" data-tier="A" onclick="setTier('A')">A</button>
+    <button class="tier-btn" data-tier="Major" onclick="setTier('Major')">Major</button>
+  </div>
+
+  <div id="mapContainer">
+    <div class="map-placeholder">
+      <div style="font-size:40px;">🗺️</div>
+      <div>Search a location or tap <strong>Near me</strong> to find upcoming events</div>
+    </div>
+  </div>
+
+  <div class="section-header" id="listHeader" style="display:none;">
+    <div class="dot"></div>
+    <h3>Upcoming Events</h3>
+    <span id="eventCount"></span>
+  </div>
+  <div id="eventsList"></div>
+
+  <div class="pdga-credit">Event data © <a href="https://www.pdga.com" target="_blank">PDGA</a></div>
+</div>
+
+<script>
+const PROXY = 'https://disc-stats.vercel.app/api/proxy';
+let map, geocoder, userMarker, allMarkers = [], allEvents = [], activeTier = 'all', centerLatLng = null;
+
+window.onMapsLoaded = function() {
+  geocoder = new google.maps.Geocoder();
+  document.getElementById('locationInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+};
+
+window.gm_authFailure = function() {
+  document.getElementById('mapContainer').innerHTML = '<div class="map-placeholder" style="color:#c0392b;padding:20px;">Google Maps could not load — check API key configuration.</div>';
+};
+
+function initMapEl() {
+  if (map) return;
+  const el = document.getElementById('mapContainer');
+  el.innerHTML = '<div id="map" style="width:100%;height:100%;"></div>';
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 30, lng: 10 }, zoom: 2,
+    mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+    styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }, { featureType: 'transit', stylers: [{ visibility: 'off' }] }],
+  });
+  map.addListener('click', () => { if (openInfoWindow) { openInfoWindow.close(); openInfoWindow = null; } });
+}
+
+function toggleNav() { document.getElementById('navDropdown').classList.toggle('open'); }
+document.addEventListener('click', e => {
+  const m = document.getElementById('navMenu');
+  if (m && !m.contains(e.target)) document.getElementById('navDropdown').classList.remove('open');
+});
+
+async function doSearch() {
+  const input = document.getElementById('locationInput').value.trim();
+  if (!input) return;
+  if (!geocoder) { alert('Maps API still loading, please wait.'); return; }
+  setBtnsLoading(true);
+  geocoder.geocode({ address: input }, async (results, status) => {
+    if (status !== 'OK' || !results[0]) {
+      setBtnsLoading(false);
+      showStatus('Location not found. Try a different city or country.', true);
+      return;
+    }
+    const loc = results[0].geometry.location;
+    await loadEvents(loc.lat(), loc.lng());
+    setBtnsLoading(false);
+  });
+}
+
+async function nearMe() {
+  if (!navigator.geolocation) { showStatus('Geolocation not supported.', true); return; }
+  const btn = document.getElementById('nearMeBtn');
+  btn.disabled = true; btn.textContent = '📍 Locating…';
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      if (geocoder) {
+        geocoder.geocode({ location: { lat, lng } }, (res, st) => {
+          if (st === 'OK' && res[0]) {
+            const city = res[0].address_components.find(c => c.types.includes('locality'));
+            const country = res[0].address_components.find(c => c.types.includes('country'));
+            document.getElementById('locationInput').value = [city?.long_name, country?.long_name].filter(Boolean).join(', ');
+          }
+        });
+      }
+      await loadEvents(lat, lng);
+      btn.disabled = false; btn.textContent = '📍 Near me';
+    },
+    err => {
+      btn.disabled = false; btn.textContent = '📍 Near me';
+      showStatus('Could not get your location: ' + err.message, true);
+    }
+  );
+}
+
+function setBtnsLoading(on) {
+  const s = document.getElementById('searchBtn');
+  const n = document.getElementById('nearMeBtn');
+  s.disabled = on; s.textContent = on ? 'Searching…' : 'Search';
+  n.disabled = on;
+}
+
+async function loadEvents(lat, lng) {
+  centerLatLng = { lat, lng };
+  initMapEl();
+  showLoading();
+  clearMarkers();
+
+  if (userMarker) userMarker.setMap(null);
+  userMarker = new google.maps.Marker({
+    position: { lat, lng }, map,
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: '#c5007a', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2.5 },
+    zIndex: 999, title: 'Your location',
+  });
+  map.setCenter({ lat, lng });
+  map.setZoom(7);
+
+  try {
+    const today = new Date();
+    const end = new Date(today); end.setDate(end.getDate() + 60);
+    const fmt = d => `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+    const pdgaUrl = `https://www.pdga.com/events?date[min][date]=${fmt(today)}&date[max][date]=${fmt(end)}`;
+    const res = await fetch(`${PROXY}?url=${encodeURIComponent(pdgaUrl)}`);
+    if (!res.ok) throw new Error(`Proxy error ${res.status}`);
+    const html = await res.text();
+    allEvents = parsePDGAEvents(html);
+    if (!allEvents.length) { showStatus('No upcoming events found. Try again later.'); return; }
+    allEvents.forEach(e => { e._dist = Infinity; });
+    document.getElementById('listHeader').style.display = 'flex';
+    renderList();
+    geocodeEvents(lat, lng);
+  } catch(err) {
+    showStatus('Failed to load events: ' + err.message, true);
+  }
+}
+
+function parsePDGAEvents(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const events = [];
+  const table = doc.querySelector('table');
+  if (!table) return events;
+
+  const ths = Array.from(table.querySelectorAll('thead th, thead td'));
+  const hdrs = ths.map(h => h.textContent.trim().toLowerCase());
+  const ci = kws => hdrs.findIndex(h => kws.some(k => h.includes(k)));
+  const nameCol = ci(['name','event','tournament']);
+  const datesCol = ci(['date']);
+  const tierCol  = ci(['tier']);
+  const classCol = ci(['class']);
+  const locCol   = ci(['location','city','venue']);
+
+  Array.from(table.querySelectorAll('tbody tr')).forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    if (cells.length < 2) return;
+    const nc = nameCol >= 0 ? cells[nameCol] : cells[0];
+    const name = nc.textContent.trim();
+    if (!name || name.length < 3) return;
+    if (/^(name|event|tournament|title)$/i.test(name)) return;
+
+    const a = nc.querySelector('a');
+    let link = a?.getAttribute('href') || '';
+    if (link && !link.startsWith('http')) link = 'https://www.pdga.com' + link;
+
+    const get = col => col >= 0 && cells[col] ? cells[col].textContent.trim() : '';
+    const rawTier = get(tierCol);
+    const location = locCol >= 0 ? get(locCol) :
+      cells.map(c => c.textContent.trim()).find(t => t.includes(',')) || '';
+
+    events.push({
+      name, link,
+      dates: get(datesCol),
+      tier: normTier(rawTier),
+      cls: get(classCol),
+      location,
+      lat: null, lng: null, _dist: Infinity,
+    });
+  });
+  return events;
+}
+
+function normTier(t) {
+  t = t.trim();
+  if (/^C$/i.test(t)) return 'C';
+  if (/^B$/i.test(t)) return 'B';
+  if (/^A$/i.test(t)) return 'A';
+  if (/^(ES|Elite Series|Elite|NT|National Tour|M|Major|XA|XB|XC|XM|H|W)/i.test(t)) return 'Major';
+  return t || '—';
+}
+
+function tierCls(tier) {
+  return { C:'', B:'tier-b', A:'tier-a', Major:'tier-major' }[tier] || '';
+}
+
+function tierColor(tier) {
+  return { A:'#d96000', B:'#2255cc', Major:'#c5007a', C:'#888' }[tier] || '#888';
+}
+
+function haversine(la1, lo1, la2, lo2) {
+  const R = 6371, d2r = Math.PI/180;
+  const dLa = (la2-la1)*d2r, dLo = (lo2-lo1)*d2r;
+  const a = Math.sin(dLa/2)**2 + Math.cos(la1*d2r)*Math.cos(la2*d2r)*Math.sin(dLo/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function renderList() {
+  const filtered = activeTier === 'all' ? allEvents : allEvents.filter(e => e.tier === activeTier);
+  document.getElementById('eventCount').textContent = filtered.length + ' events';
+  if (!filtered.length) {
+    document.getElementById('eventsList').innerHTML = '<div class="status">No events for this tier filter.</div>';
+    return;
+  }
+  document.getElementById('eventsList').innerHTML = filtered.map(e => {
+    const nm = e.link ? `<a href="${e.link}" target="_blank">${escHtml(e.name)}</a>` : escHtml(e.name);
+    const dist = e._dist < Infinity ? `${Math.round(e._dist)} km` : '';
+    return `<div class="event-card" data-tier="${e.tier}">
+      <div class="tier-badge ${tierCls(e.tier)}">${e.tier}</div>
+      <div>
+        <div class="event-name">${nm}</div>
+        <div class="event-meta">
+          ${e.dates ? `<span>📅 ${escHtml(e.dates)}</span>` : ''}
+          ${e.location ? `<span>📍 ${escHtml(e.location)}</span>` : ''}
+          ${e.cls ? `<span style="color:var(--text-dim);">${escHtml(e.cls)}</span>` : ''}
+        </div>
+      </div>
+      ${dist ? `<div class="event-dist">${dist}</div>` : '<div></div>'}
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const _geocache = {};
+let openInfoWindow = null;
+
+async function geocodeEvents(centerLat, centerLng) {
+  const BATCH = 4;
+  for (let i = 0; i < allEvents.length; i += BATCH) {
+    await Promise.all(allEvents.slice(i, i + BATCH).map(e => new Promise(resolve => {
+      if (!e.location || !geocoder) { resolve(); return; }
+      const key = e.location.toLowerCase();
+      if (_geocache[key]) {
+        e.lat = _geocache[key].lat; e.lng = _geocache[key].lng;
+        e._dist = haversine(centerLat, centerLng, e.lat, e.lng);
+        addMarker(e);
+        resolve(); return;
+      }
+      geocoder.geocode({ address: e.location }, (res, st) => {
+        if (st === 'OK' && res[0]) {
+          const pos = res[0].geometry.location;
+          e.lat = pos.lat(); e.lng = pos.lng();
+          _geocache[key] = { lat: e.lat, lng: e.lng };
+          e._dist = haversine(centerLat, centerLng, e.lat, e.lng);
+          addMarker(e);
+        }
+        resolve();
+      });
+    })));
+    await new Promise(r => setTimeout(r, 180));
+  }
+  // Re-render list with distances
+  renderList();
+}
+
+function addMarker(e) {
+  if (!map || e.lat == null) return;
+  if (activeTier !== 'all' && e.tier !== activeTier) return;
+
+  const marker = new google.maps.Marker({
+    position: { lat: e.lat, lng: e.lng }, map, title: e.name,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 7, fillColor: tierColor(e.tier), fillOpacity: 0.88,
+      strokeColor: '#ffffff', strokeWeight: 1.5,
+    },
+  });
+
+  const content = `<div style="font-family:'DM Sans',sans-serif;max-width:230px;padding:2px 0;">
+    <div style="font-weight:700;font-size:13px;line-height:1.35;margin-bottom:5px;">${escHtml(e.name)}</div>
+    ${e.dates ? `<div style="font-size:12px;color:#555;margin-bottom:2px;">📅 ${escHtml(e.dates)}</div>` : ''}
+    ${e.location ? `<div style="font-size:12px;color:#555;margin-bottom:2px;">📍 ${escHtml(e.location)}</div>` : ''}
+    <div style="font-size:11px;color:#777;margin-bottom:6px;">Tier ${escHtml(e.tier)}${e.cls ? ' · ' + escHtml(e.cls) : ''}</div>
+    ${e.link ? `<a href="${e.link}" target="_blank" style="font-size:12.5px;color:#c5007a;font-weight:700;text-decoration:none;">View on PDGA →</a>` : ''}
+  </div>`;
+
+  const iw = new google.maps.InfoWindow({ content });
+  marker.addListener('click', () => {
+    if (openInfoWindow) openInfoWindow.close();
+    iw.open(map, marker); openInfoWindow = iw;
+  });
+  marker._event = e;
+  allMarkers.push(marker);
+}
+
+function clearMarkers() {
+  allMarkers.forEach(m => m.setMap(null));
+  allMarkers = [];
+  if (openInfoWindow) { openInfoWindow.close(); openInfoWindow = null; }
+}
+
+function setTier(tier) {
+  activeTier = tier;
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('active', b.dataset.tier === tier));
+  allMarkers.forEach(m => { m.setMap((tier === 'all' || m._event?.tier === tier) ? map : null); });
+  if (allEvents.length) renderList();
+}
+
+function showLoading() {
+  document.getElementById('listHeader').style.display = 'none';
+  document.getElementById('eventsList').innerHTML = '<div class="status"><div class="spinner"></div>Loading events…</div>';
+}
+
+function showStatus(msg, err) {
+  document.getElementById('listHeader').style.display = 'none';
+  document.getElementById('eventsList').innerHTML = `<div class="status${err ? ' error' : ''}">${msg}</div>`;
+}
+</script>
+</body>
+</html>
