@@ -2032,13 +2032,24 @@ window.addEventListener('load', () => {
 });
 </script>
 <script>
-// Sync favicon to match the header logo exactly
+// Generate scaled logo icon (basket 15% bigger) and apply to all icon references
 (function(){
   var img = document.querySelector('.logo img');
   if (!img) return;
+  function makeIcon(size) {
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var ctx = c.getContext('2d');
+    var s = size * 1.15;
+    ctx.drawImage(img, (size - s) / 2, (size - s) / 2, s, s);
+    return c.toDataURL('image/png');
+  }
+  var icon180 = makeIcon(180);
   var lnk = document.querySelector('link[rel="icon"]');
   if (!lnk) { lnk = document.createElement('link'); lnk.rel = 'icon'; lnk.type = 'image/png'; document.head.appendChild(lnk); }
-  lnk.href = img.src;
+  lnk.href = makeIcon(64);
+  var atl = document.querySelector('link[rel="apple-touch-icon"]');
+  if (atl) atl.href = icon180;
 })();
 </script>
 </body>
