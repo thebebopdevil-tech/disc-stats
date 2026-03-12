@@ -365,7 +365,7 @@ header {
 /* EVENT ROWS */
 .event-row {
   display: grid;
-  grid-template-columns: 8px 1fr auto auto;
+  grid-template-columns: 8px 1fr auto auto auto;
   gap: 12px;
   padding: 11px 20px;
   border-bottom: 1px solid var(--border);
@@ -411,6 +411,17 @@ header {
 .place-1 { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold-border); font-weight: 700; }
 .place-top { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
 .place-mid { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+.division-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
 
 /* CHART */
 .chart-wrap { padding: 20px 20px 14px; }
@@ -482,7 +493,7 @@ header {
   .stat-label { font-size: 9px; letter-spacing: 0.2px; }
 
   /* Events */
-  .event-row { grid-template-columns: 7px 1fr auto; gap: 8px; padding: 10px 14px; }
+  .event-row { grid-template-columns: 7px 1fr auto auto auto; gap: 8px; padding: 10px 14px; }
   .event-date { display: none; }
   .event-name { font-size: 13px; }
   .event-place { font-size: 11px; padding: 2px 8px; }
@@ -1520,7 +1531,14 @@ function parseEvents(doc, arr, type) {
       if (/^T?\d+$/.test(t) && +t.replace('T','') > 0 && +t.replace('T','') < 2000) { place = t; break; }
       if (/^(DNF|DNS|DQ|WD|CUT)$/i.test(t)) { place = t.toUpperCase(); break; }
     }
-    arr.push({ name, date, place, link, type });
+    let division = '';
+    for (const t of texts) {
+      if (/^(MPO|FPO|[MF][AJ]\d{1,2}|[MF][GPSL]\d?)$/i.test(t.trim())) {
+        division = t.trim().toUpperCase();
+        break;
+      }
+    }
+    arr.push({ name, date, place, link, type, division });
   });
 }
 
@@ -1621,10 +1639,12 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
       const nm = e.link ? `<a href="${e.link}" target="_blank">${e.name}</a>` : e.name;
       const normP = p.replace(/^#/,'');
       const yearStr = e.date ? (e.date.match(/(\d{4})/) ? e.date.match(/(\d{4})/)[1] : '') : '';
+      const divBadge = e.division ? `<div class="division-badge">${e.division}</div>` : '';
       h += `<div class="event-row" data-type="${e.type||'tournament'}" data-place="${normP}" data-idx="${idx}">
         <div class="type-dot ${dc}"></div>
-        <div class="event-name">${nm}${yearStr ? '<span style="color:var(--text-dim);font-size:11px;font-family:DM Mono,monospace;margin-left:7px;">'+yearStr+'</span>' : ''}</div>
+        <div class="event-name">${nm}</div>
         <div class="event-date">${yearStr||e.date||''}</div>
+        ${divBadge}
         <div class="event-place ${pc}">${dp}</div>
       </div>`;
     });
