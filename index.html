@@ -1586,9 +1586,6 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
 
     <div class="stats-grid">
       <div class="stat-card" onclick="filterEvents('all')" title="Show all events"><div class="stat-value">${events.length}</div><div class="stat-label">Total Events</div></div>
-      <div class="stat-card" onclick="filterEvents('tournament')" title="Show tournaments"><div class="stat-value">${counts.tournament}</div><div class="stat-label">Tournaments</div></div>
-      <div class="stat-card" onclick="filterEvents('league')" title="Show leagues"><div class="stat-value">${counts.league}</div><div class="stat-label">Leagues</div></div>
-      <div class="stat-card" onclick="filterEvents('doubles')" title="Show doubles"><div class="stat-value">${counts.doubles}</div><div class="stat-label">Doubles</div></div>
       <div class="stat-card" onclick="filterEvents('wins')" title="Show wins"><div class="stat-value">${wins}</div><div class="stat-label">Wins</div></div>
       <div class="stat-card" onclick="filterEvents('podiums')" title="Show podiums"><div class="stat-value">${podiums}</div><div class="stat-label">Podiums</div></div>
     </div>
