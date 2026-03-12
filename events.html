@@ -249,7 +249,11 @@ header { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
 
 <script>
 const PROXY = 'https://disc-stats.vercel.app/api/proxy';
-let map, geocoder, userMarker, allMarkers = [], allEvents = [], activeTier = 'all', centerLatLng = null;
+const PDGA_API = 'https://api.pdga.com/api/json/event_search';
+const RADIUS_KM = 500;
+
+let map, geocoder, userMarker, allMarkers = [], allEvents = [], activeTier = 'all';
+let openInfoWindow = null;
 
 window.onMapsLoaded = function() {
   geocoder = new google.maps.Geocoder();
@@ -329,7 +333,6 @@ function setBtnsLoading(on) {
 }
 
 async function loadEvents(lat, lng) {
-  centerLatLng = { lat, lng };
   initMapEl();
   showLoading();
   clearMarkers();
@@ -344,74 +347,68 @@ async function loadEvents(lat, lng) {
   map.setZoom(7);
 
   try {
-    const today = new Date();
-    const end = new Date(today); end.setDate(end.getDate() + 60);
-    const fmt = d => `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
-    const pdgaUrl = `https://www.pdga.com/events?date[min][date]=${fmt(today)}&date[max][date]=${fmt(end)}`;
-    const res = await fetch(`${PROXY}?url=${encodeURIComponent(pdgaUrl)}`);
-    if (!res.ok) throw new Error(`Proxy error ${res.status}`);
-    const html = await res.text();
-    allEvents = parsePDGAEvents(html);
-    if (!allEvents.length) { showStatus('No upcoming events found. Try again later.'); return; }
-    allEvents.forEach(e => { e._dist = Infinity; });
+    const apiUrl = `${PDGA_API}?latitude=${lat}&longitude=${lng}&radius=${RADIUS_KM}&date_filter_type=upcoming&limit=50`;
+    const res = await fetch(`${PROXY}?url=${encodeURIComponent(apiUrl)}`);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { throw new Error('Invalid response from PDGA API'); }
+
+    const items = Array.isArray(data) ? data : (data.data || data.events || data.results || []);
+    allEvents = items.map(parsePDGAEvent).filter(Boolean);
+
+    if (!allEvents.length) { showStatus('No upcoming events found within ' + RADIUS_KM + ' km. Try a different location.'); return; }
     document.getElementById('listHeader').style.display = 'flex';
+    allEvents.forEach(e => addMarker(e));
     renderList();
-    geocodeEvents(lat, lng);
   } catch(err) {
     showStatus('Failed to load events: ' + err.message, true);
   }
 }
 
-function parsePDGAEvents(html) {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const events = [];
-  const table = doc.querySelector('table');
-  if (!table) return events;
+function parsePDGAEvent(item) {
+  if (!item) return null;
+  const name = item.tournament_name || item.name || item.event_name || '';
+  if (!name) return null;
 
-  const ths = Array.from(table.querySelectorAll('thead th, thead td'));
-  const hdrs = ths.map(h => h.textContent.trim().toLowerCase());
-  const ci = kws => hdrs.findIndex(h => kws.some(k => h.includes(k)));
-  const nameCol = ci(['name','event','tournament']);
-  const datesCol = ci(['date']);
-  const tierCol  = ci(['tier']);
-  const classCol = ci(['class']);
-  const locCol   = ci(['location','city','venue']);
+  const id = item.tournament_id || item.event_id || item.id || '';
+  const link = id ? `https://www.pdga.com/tour/event/${id}` : '';
 
-  Array.from(table.querySelectorAll('tbody tr')).forEach(row => {
-    const cells = Array.from(row.querySelectorAll('td'));
-    if (cells.length < 2) return;
-    const nc = nameCol >= 0 ? cells[nameCol] : cells[0];
-    const name = nc.textContent.trim();
-    if (!name || name.length < 3) return;
-    if (/^(name|event|tournament|title)$/i.test(name)) return;
+  const startDate = item.start_date || item.date_start || '';
+  const endDate = item.end_date || item.date_end || '';
+  let dates = '';
+  if (startDate && endDate && startDate !== endDate) {
+    dates = `${fmtDate(startDate)} – ${fmtDate(endDate)}`;
+  } else if (startDate) {
+    dates = fmtDate(startDate);
+  }
 
-    const a = nc.querySelector('a');
-    let link = a?.getAttribute('href') || '';
-    if (link && !link.startsWith('http')) link = 'https://www.pdga.com' + link;
+  const rawTier = item.tier || item.event_tier || item.sanctioning_body || '';
+  const city = item.city || '';
+  const stateProv = item.state_prov || item.state || '';
+  const country = item.country || item.country_code || '';
+  const location = [city, stateProv, country].filter(Boolean).join(', ');
 
-    const get = col => col >= 0 && cells[col] ? cells[col].textContent.trim() : '';
-    const rawTier = get(tierCol);
-    const location = locCol >= 0 ? get(locCol) :
-      cells.map(c => c.textContent.trim()).find(t => t.includes(',')) || '';
+  const lat = parseFloat(item.latitude || item.lat || 0) || null;
+  const lng = parseFloat(item.longitude || item.lng || item.lon || 0) || null;
 
-    events.push({
-      name, link,
-      dates: get(datesCol),
-      tier: normTier(rawTier),
-      cls: get(classCol),
-      location,
-      lat: null, lng: null, _dist: Infinity,
-    });
-  });
-  return events;
+  return { name, link, dates, tier: normTier(rawTier), location, lat, lng };
+}
+
+function fmtDate(s) {
+  if (!s) return '';
+  // Accepts "YYYY-MM-DD" or "MM/DD/YYYY"
+  const d = new Date(s.includes('T') ? s : s + 'T00:00:00');
+  if (isNaN(d)) return s;
+  return d.toLocaleDateString('en-SE', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function normTier(t) {
-  t = t.trim();
+  t = (t || '').trim();
   if (/^C$/i.test(t)) return 'C';
   if (/^B$/i.test(t)) return 'B';
   if (/^A$/i.test(t)) return 'A';
-  if (/^(ES|Elite Series|Elite|NT|National Tour|M|Major|XA|XB|XC|XM|H|W)/i.test(t)) return 'Major';
+  if (/^(ES|Elite Series|Elite|NT|National Tour|M|Major|XA|XB|XC|XM|H|W|Pro)/i.test(t)) return 'Major';
   return t || '—';
 }
 
@@ -423,13 +420,6 @@ function tierColor(tier) {
   return { A:'#d96000', B:'#2255cc', Major:'#c5007a', C:'#888' }[tier] || '#888';
 }
 
-function haversine(la1, lo1, la2, lo2) {
-  const R = 6371, d2r = Math.PI/180;
-  const dLa = (la2-la1)*d2r, dLo = (lo2-lo1)*d2r;
-  const a = Math.sin(dLa/2)**2 + Math.cos(la1*d2r)*Math.cos(la2*d2r)*Math.sin(dLo/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
 function renderList() {
   const filtered = activeTier === 'all' ? allEvents : allEvents.filter(e => e.tier === activeTier);
   document.getElementById('eventCount').textContent = filtered.length + ' events';
@@ -439,7 +429,6 @@ function renderList() {
   }
   document.getElementById('eventsList').innerHTML = filtered.map(e => {
     const nm = e.link ? `<a href="${e.link}" target="_blank">${escHtml(e.name)}</a>` : escHtml(e.name);
-    const dist = e._dist < Infinity ? `${Math.round(e._dist)} km` : '';
     return `<div class="event-card" data-tier="${e.tier}">
       <div class="tier-badge ${tierCls(e.tier)}">${e.tier}</div>
       <div>
@@ -447,10 +436,9 @@ function renderList() {
         <div class="event-meta">
           ${e.dates ? `<span>📅 ${escHtml(e.dates)}</span>` : ''}
           ${e.location ? `<span>📍 ${escHtml(e.location)}</span>` : ''}
-          ${e.cls ? `<span style="color:var(--text-dim);">${escHtml(e.cls)}</span>` : ''}
         </div>
       </div>
-      ${dist ? `<div class="event-dist">${dist}</div>` : '<div></div>'}
+      <div></div>
     </div>`;
   }).join('');
 }
@@ -459,41 +447,8 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-const _geocache = {};
-let openInfoWindow = null;
-
-async function geocodeEvents(centerLat, centerLng) {
-  const BATCH = 4;
-  for (let i = 0; i < allEvents.length; i += BATCH) {
-    await Promise.all(allEvents.slice(i, i + BATCH).map(e => new Promise(resolve => {
-      if (!e.location || !geocoder) { resolve(); return; }
-      const key = e.location.toLowerCase();
-      if (_geocache[key]) {
-        e.lat = _geocache[key].lat; e.lng = _geocache[key].lng;
-        e._dist = haversine(centerLat, centerLng, e.lat, e.lng);
-        addMarker(e);
-        resolve(); return;
-      }
-      geocoder.geocode({ address: e.location }, (res, st) => {
-        if (st === 'OK' && res[0]) {
-          const pos = res[0].geometry.location;
-          e.lat = pos.lat(); e.lng = pos.lng();
-          _geocache[key] = { lat: e.lat, lng: e.lng };
-          e._dist = haversine(centerLat, centerLng, e.lat, e.lng);
-          addMarker(e);
-        }
-        resolve();
-      });
-    })));
-    await new Promise(r => setTimeout(r, 180));
-  }
-  // Re-render list with distances
-  renderList();
-}
-
 function addMarker(e) {
-  if (!map || e.lat == null) return;
-  if (activeTier !== 'all' && e.tier !== activeTier) return;
+  if (!map || e.lat == null || e.lng == null) return;
 
   const marker = new google.maps.Marker({
     position: { lat: e.lat, lng: e.lng }, map, title: e.name,
@@ -508,7 +463,7 @@ function addMarker(e) {
     <div style="font-weight:700;font-size:13px;line-height:1.35;margin-bottom:5px;">${escHtml(e.name)}</div>
     ${e.dates ? `<div style="font-size:12px;color:#555;margin-bottom:2px;">📅 ${escHtml(e.dates)}</div>` : ''}
     ${e.location ? `<div style="font-size:12px;color:#555;margin-bottom:2px;">📍 ${escHtml(e.location)}</div>` : ''}
-    <div style="font-size:11px;color:#777;margin-bottom:6px;">Tier ${escHtml(e.tier)}${e.cls ? ' · ' + escHtml(e.cls) : ''}</div>
+    <div style="font-size:11px;color:#777;margin-bottom:6px;">Tier ${escHtml(e.tier)}</div>
     ${e.link ? `<a href="${e.link}" target="_blank" style="font-size:12.5px;color:#c5007a;font-weight:700;text-decoration:none;">View on PDGA →</a>` : ''}
   </div>`;
 
