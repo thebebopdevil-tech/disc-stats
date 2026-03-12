@@ -1368,6 +1368,7 @@ async function loadPlayer() {
       ratingsDetail = parseRatingsDetail(histDoc);
     } catch(e) { /* silently skip */ }
     renderDashboard({ name, rating, pdgaNum: num, location, classification, memberStatus, events: allEvents, counts, ratingHistory, ratingsDetail });
+    loadFieldSizes(allEvents);
   } catch(e) {
     console.error(e);
     showError(`Could not load player data. <a href="https://www.pdga.com/player/${num}" target="_blank" style="color:var(--accent);display:block;margin-top:8px;">Open PDGA profile directly →</a>`);
@@ -1551,6 +1552,57 @@ function parseEvents(doc, arr, type) {
   });
 }
 
+async function loadFieldSizes(events) {
+  const byUrl = new Map();
+  events.forEach((e, idx) => {
+    if (!e.link) return;
+    const base = e.link.replace(/#.*$/, '');
+    if (!byUrl.has(base)) byUrl.set(base, []);
+    byUrl.get(base).push({ e, idx });
+  });
+  const CONCURRENCY = 4;
+  const entries = Array.from(byUrl.entries());
+  for (let i = 0; i < entries.length; i += CONCURRENCY) {
+    const batch = entries.slice(i, i + CONCURRENCY);
+    await Promise.all(batch.map(async ([url, items]) => {
+      try {
+        const html = await fetchViaProxy(url);
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        for (const { e, idx } of items) {
+          const frag = (e.link.match(/#(.+)$/) || [])[1] || '';
+          let fieldSize = 0;
+          if (frag) {
+            let tbl = null;
+            const anchor = doc.getElementById(frag) || doc.querySelector(`[name="${frag}"]`);
+            if (anchor) {
+              let el = anchor.nextElementSibling;
+              while (el && el.tagName !== 'TABLE') el = el.nextElementSibling;
+              if (el) tbl = el;
+              if (!tbl) tbl = anchor.closest('table') || anchor.parentElement?.querySelector('table');
+            }
+            if (!tbl) {
+              const lower = frag.toLowerCase();
+              for (const t of doc.querySelectorAll('table')) {
+                if ((t.id || '').toLowerCase().includes(lower) || (t.className || '').toLowerCase().includes(lower)) { tbl = t; break; }
+              }
+            }
+            if (tbl) fieldSize = tbl.querySelectorAll('tbody tr').length;
+          }
+          if (fieldSize > 0) {
+            e.fieldSize = fieldSize;
+            const el = document.getElementById(`ep-${idx}`);
+            if (el) {
+              const p = String(e.place || '');
+              el.textContent = p && p !== '—' ? `${p}/${fieldSize}` : '—';
+            }
+          }
+        }
+      } catch (err) {}
+    }));
+    await new Promise(r => setTimeout(r, 200));
+  }
+}
+
 let activeFilter = 'all';
 
 function filterEvents(type) {
@@ -1654,7 +1706,7 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
         <div class="event-name">${nm}</div>
         <div class="event-date">${yearStr||e.date||''}</div>
         ${divBadge}
-        <div class="event-place ${pc}">${dp}</div>
+        <div class="event-place ${pc}" id="ep-${idx}">${dp}</div>
       </div>`;
     });
     h += `</div></div>`;
