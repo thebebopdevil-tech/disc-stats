@@ -1572,21 +1572,28 @@ async function loadFieldSizes(events) {
           const frag = (e.link.match(/#(.+)$/) || [])[1] || '';
           let fieldSize = 0;
           if (frag) {
-            let tbl = null;
-            const anchor = doc.getElementById(frag) || doc.querySelector(`[name="${frag}"]`);
-            if (anchor) {
-              let el = anchor.nextElementSibling;
-              while (el && el.tagName !== 'TABLE') el = el.nextElementSibling;
-              if (el) tbl = el;
-              if (!tbl) tbl = anchor.closest('table') || anchor.parentElement?.querySelector('table');
-            }
-            if (!tbl) {
-              const lower = frag.toLowerCase();
-              for (const t of doc.querySelectorAll('table')) {
-                if ((t.id || '').toLowerCase().includes(lower) || (t.className || '').toLowerCase().includes(lower)) { tbl = t; break; }
+            // PDGA event pages have h2/h3 like "MPO · Mixed Pro Open (18)"
+            // The number in parentheses is the player count for that division
+            for (const h of doc.querySelectorAll('h2,h3,h4')) {
+              const txt = h.textContent.trim();
+              if (txt.toUpperCase().startsWith(frag.toUpperCase())) {
+                const m = txt.match(/\((\d+)\)/);
+                if (m) { fieldSize = parseInt(m[1]); break; }
               }
             }
-            if (tbl) fieldSize = tbl.querySelectorAll('tbody tr').length;
+            // Fallback: count rows in division table
+            if (!fieldSize) {
+              const anchor = doc.getElementById(frag) || doc.querySelector(`[name="${frag}"]`);
+              if (anchor) {
+                let el = anchor.nextElementSibling;
+                while (el) {
+                  const tbl = el.tagName === 'TABLE' ? el : el.querySelector('table');
+                  if (tbl) { fieldSize = tbl.querySelectorAll('tbody tr').length; break; }
+                  if (el.id && el.id !== frag) break;
+                  el = el.nextElementSibling;
+                }
+              }
+            }
           }
           if (fieldSize > 0) {
             e.fieldSize = fieldSize;
