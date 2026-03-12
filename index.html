@@ -1596,12 +1596,13 @@ async function loadFieldSizes(events) {
               }
             }
           }
-          if (fieldSize > 0) {
-            e.fieldSize = fieldSize;
+          const fs = Number.isFinite(fieldSize) && fieldSize > 0 ? fieldSize : 0;
+          if (fs > 0) {
+            e.fieldSize = fs;
             const el = document.getElementById(`ep-${idx}`);
             if (el) {
-              const p = String(e.place || '');
-              el.textContent = p && p !== '—' ? (p.match(/^\d+$/) ? `#${p}/${fieldSize}` : `${p}/${fieldSize}`) : '—';
+              const p = String(e.place || '').replace(/^#/, '');
+              el.textContent = p && p !== '—' ? `#${p}/${fs}` : '—';
             }
           }
         }
