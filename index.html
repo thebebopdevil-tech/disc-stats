@@ -851,7 +851,7 @@ header {
     </div>
     <div class="header-text">
       <h1>Disc Golf Overview</h1>
-      <p id="headerSubtitle">Work in Progress</p>
+      <p id="headerSubtitle">Player Stats</p>
     </div>
     <div class="nav-menu" id="navMenu">
       <button class="nav-trigger" onclick="toggleNav()" id="navTrigger" aria-label="Menu">
@@ -1879,7 +1879,7 @@ function showPage(page) {
 
   if (page === 'stats') {
     statsPage.classList.remove('hidden');
-    subtitle.textContent = 'Work in Progress';
+    subtitle.textContent = 'Player Stats';
     navStats.classList.add('nav-item-active');
   } else if (page === 'courses') {
     coursesPage.classList.add('active');
