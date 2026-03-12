@@ -249,7 +249,6 @@ header { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
 
 <script>
 const PROXY = 'https://disc-stats.vercel.app/api/proxy';
-const PDGA_API = 'https://api.pdga.com/api/json/event_search';
 const RADIUS_KM = 500;
 
 let map, geocoder, userMarker, allMarkers = [], allEvents = [], activeTier = 'all';
@@ -347,52 +346,95 @@ async function loadEvents(lat, lng) {
   map.setZoom(7);
 
   try {
-    const apiUrl = `${PDGA_API}?latitude=${lat}&longitude=${lng}&radius=${RADIUS_KM}&date_filter_type=upcoming&limit=50`;
-    const res = await fetch(`${PROXY}?url=${encodeURIComponent(apiUrl)}`);
-    if (!res.ok) throw new Error(`API error ${res.status}`);
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { throw new Error('Invalid response from PDGA API'); }
+    const today = new Date();
+    const end = new Date(); end.setDate(end.getDate() + 60);
+    const fmt = d => `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+    const pdgaUrl = `https://www.pdga.com/events?date[min][date]=${fmt(today)}&date[max][date]=${fmt(end)}`;
+    const res = await fetch(`${PROXY}?url=${encodeURIComponent(pdgaUrl)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
 
-    const items = Array.isArray(data) ? data : (data.data || data.events || data.results || []);
-    allEvents = items.map(parsePDGAEvent).filter(Boolean);
+    allEvents = parsePDGAEvents(html);
+    if (!allEvents.length) { showStatus('No upcoming events found. Try again later.'); return; }
 
-    if (!allEvents.length) { showStatus('No upcoming events found within ' + RADIUS_KM + ' km. Try a different location.'); return; }
     document.getElementById('listHeader').style.display = 'flex';
-    allEvents.forEach(e => addMarker(e));
     renderList();
+    geocodeEvents(lat, lng); // background: adds markers + distances, re-renders
   } catch(err) {
     showStatus('Failed to load events: ' + err.message, true);
   }
 }
 
-function parsePDGAEvent(item) {
-  if (!item) return null;
-  const name = item.tournament_name || item.name || item.event_name || '';
-  if (!name) return null;
+function parsePDGAEvents(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const table = doc.querySelector('table');
+  if (!table) return [];
 
-  const id = item.tournament_id || item.event_id || item.id || '';
-  const link = id ? `https://www.pdga.com/tour/event/${id}` : '';
+  const headers = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase());
+  const col = (...names) => names.reduce((found, n) => found !== -1 ? found : headers.findIndex(h => h.includes(n)), -1);
 
-  const startDate = item.start_date || item.date_start || '';
-  const endDate = item.end_date || item.date_end || '';
-  let dates = '';
-  if (startDate && endDate && startDate !== endDate) {
-    dates = `${fmtDate(startDate)} – ${fmtDate(endDate)}`;
-  } else if (startDate) {
-    dates = fmtDate(startDate);
+  const nameCol    = col('tournament', 'event', 'name');
+  const startCol   = col('start date', 'start', 'date');
+  const endCol     = col('end date', 'end');
+  const tierCol    = col('tier', 'class');
+  const cityCol    = col('city', 'location');
+  const stateCol   = col('state', 'province');
+  const countryCol = col('country');
+
+  return [...table.querySelectorAll('tbody tr')].map(tr => {
+    const cells = [...tr.querySelectorAll('td')];
+    if (!cells.length) return null;
+    const nameCell = cells[nameCol >= 0 ? nameCol : 0];
+    const anchor = nameCell?.querySelector('a');
+    const name = (anchor || nameCell)?.textContent.trim();
+    if (!name) return null;
+
+    const link = anchor ? 'https://www.pdga.com' + anchor.getAttribute('href').split('#')[0] : '';
+    const startDate = startCol >= 0 ? cells[startCol]?.textContent.trim() : '';
+    const endDate   = endCol >= 0   ? cells[endCol]?.textContent.trim()   : '';
+    let dates = '';
+    if (startDate && endDate && startDate !== endDate) dates = `${fmtDate(startDate)} – ${fmtDate(endDate)}`;
+    else if (startDate) dates = fmtDate(startDate);
+
+    const rawTier = tierCol >= 0    ? cells[tierCol]?.textContent.trim()    : '';
+    const city    = cityCol >= 0    ? cells[cityCol]?.textContent.trim()    : '';
+    const state   = stateCol >= 0   ? cells[stateCol]?.textContent.trim()   : '';
+    const country = countryCol >= 0 ? cells[countryCol]?.textContent.trim() : '';
+    const location = [city, state, country].filter(Boolean).join(', ');
+
+    return { name, link, dates, tier: normTier(rawTier), location, lat: null, lng: null, dist: null };
+  }).filter(Boolean);
+}
+
+async function geocodeEvents(userLat, userLng) {
+  if (!geocoder || !allEvents.length) return;
+  const BATCH = 4, DELAY = 180;
+  for (let i = 0; i < allEvents.length; i += BATCH) {
+    const batch = allEvents.slice(i, i + BATCH);
+    await Promise.all(batch.map(e => new Promise(resolve => {
+      if (!e.location) { resolve(); return; }
+      geocoder.geocode({ address: e.location }, (res, st) => {
+        if (st === 'OK' && res[0]) {
+          e.lat = res[0].geometry.location.lat();
+          e.lng = res[0].geometry.location.lng();
+          e.dist = haversine(userLat, userLng, e.lat, e.lng);
+          addMarker(e);
+        }
+        resolve();
+      });
+    })));
+    if (i + BATCH < allEvents.length) await new Promise(r => setTimeout(r, DELAY));
   }
+  allEvents.sort((a, b) => (a.dist ?? Infinity) - (b.dist ?? Infinity));
+  renderList();
+}
 
-  const rawTier = item.tier || item.event_tier || item.sanctioning_body || '';
-  const city = item.city || '';
-  const stateProv = item.state_prov || item.state || '';
-  const country = item.country || item.country_code || '';
-  const location = [city, stateProv, country].filter(Boolean).join(', ');
-
-  const lat = parseFloat(item.latitude || item.lat || 0) || null;
-  const lng = parseFloat(item.longitude || item.lng || item.lon || 0) || null;
-
-  return { name, link, dates, tier: normTier(rawTier), location, lat, lng };
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
 }
 
 function fmtDate(s) {
@@ -436,6 +478,7 @@ function renderList() {
         <div class="event-meta">
           ${e.dates ? `<span>📅 ${escHtml(e.dates)}</span>` : ''}
           ${e.location ? `<span>📍 ${escHtml(e.location)}</span>` : ''}
+          ${e.dist != null ? `<span>${e.dist} km away</span>` : ''}
         </div>
       </div>
       <div></div>
