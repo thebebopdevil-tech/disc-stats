@@ -1532,10 +1532,19 @@ function parseEvents(doc, arr, type) {
       if (/^(DNF|DNS|DQ|WD|CUT)$/i.test(t)) { place = t.toUpperCase(); break; }
     }
     let division = '';
-    for (const t of texts) {
-      if (/^(MPO|FPO|[MF][AJ]\d{1,2}|[MF][GPSL]\d?)$/i.test(t.trim())) {
-        division = t.trim().toUpperCase();
-        break;
+    for (const cell of cells) {
+      const a = cell.querySelector('a');
+      if (a) {
+        const href = a.getAttribute('href') || '';
+        const frag = href.match(/#([A-Z0-9]+)$/i);
+        if (frag) { division = frag[1].toUpperCase(); break; }
+      }
+    }
+    if (!division) {
+      const tbl = row.closest('table');
+      if (tbl && tbl.id) {
+        const m = tbl.id.match(/player-results-([a-z0-9]+)/i);
+        if (m) division = m[1].toUpperCase();
       }
     }
     arr.push({ name, date, place, link, type, division });
