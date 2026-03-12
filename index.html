@@ -487,7 +487,7 @@ header {
   .rating-label { font-size: 10px; margin-top: 0; }
 
   /* Stats grid */
-  .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; overflow: hidden; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; overflow: hidden; }
   .stat-card { padding: 12px 4px 10px; min-width: 0; }
   .stat-value { font-size: 22px; letter-spacing: -1px; }
   .stat-label { font-size: 9px; letter-spacing: 0.2px; }
@@ -1653,6 +1653,13 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
   const isPodium = e => ['1','2','3','T1','T2','T3'].includes(normPlace(e.place));
   const wins = events.filter(isWin).length;
   const podiums = events.filter(isPodium).length;
+  const thisYear = new Date().getFullYear();
+  const yearEvents = events.filter(e => e.date && new Date(e.date).getFullYear() === thisYear);
+  const bestFinishNum = yearEvents.reduce((best, e) => {
+    const n = parseInt(normPlace(e.place).replace('T',''));
+    return (!isNaN(n) && n > 0 && n < best) ? n : best;
+  }, Infinity);
+  const bestFinish = isFinite(bestFinishNum) ? '#' + bestFinishNum : '—';
   const isCurrent = memberStatus && memberStatus.toLowerCase().includes('current');
 
   let h = `<div class="fade-in">
@@ -1681,6 +1688,7 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
       <div class="stat-card" onclick="filterEvents('all')" title="Show all events"><div class="stat-value">${events.length}</div><div class="stat-label">Total Events</div></div>
       <div class="stat-card" onclick="filterEvents('wins')" title="Show wins"><div class="stat-value">${wins}</div><div class="stat-label">Wins</div></div>
       <div class="stat-card" onclick="filterEvents('podiums')" title="Show podiums"><div class="stat-value">${podiums}</div><div class="stat-label">Podiums</div></div>
+      <div class="stat-card" title="Best finish this year"><div class="stat-value" style="font-size:${bestFinish==='—'?'30px':'26px'}">${bestFinish}</div><div class="stat-label">Best ${thisYear}</div></div>
     </div>
 
     <div class="section">
