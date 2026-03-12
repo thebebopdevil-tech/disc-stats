@@ -1600,7 +1600,7 @@ async function loadFieldSizes(events) {
             const el = document.getElementById(`ep-${idx}`);
             if (el) {
               const p = String(e.place || '');
-              el.textContent = p && p !== '—' ? `${p}/${fieldSize}` : '—';
+              el.textContent = p && p !== '—' ? (p.match(/^\d+$/) ? `#${p}/${fieldSize}` : `${p}/${fieldSize}`) : '—';
             }
           }
         }
@@ -1622,10 +1622,14 @@ function filterEvents(type) {
     else if (type !== 'all') hide = r.dataset.type !== type;
     r.classList.toggle('hidden', hide);
   });
-  if (list && (type === 'wins' || type === 'podiums')) {
+  if (list) {
     const rows = Array.from(list.querySelectorAll('.event-row'));
-    const placeVal = r => { const n = parseInt(String(r.dataset.place||'').replace(/^#/,'').replace('T','')); return isNaN(n) ? 999 : n; };
-    rows.sort((a, b) => placeVal(a) - placeVal(b));
+    if (type === 'wins' || type === 'podiums') {
+      const placeVal = r => { const n = parseInt(String(r.dataset.place||'').replace(/^#/,'').replace('T','')); return isNaN(n) ? 999 : n; };
+      rows.sort((a, b) => placeVal(a) - placeVal(b));
+    } else {
+      rows.sort((a, b) => parseInt(a.dataset.idx||0) - parseInt(b.dataset.idx||0));
+    }
     rows.forEach(r => list.appendChild(r));
   }
   const n = document.querySelectorAll('.event-row:not(.hidden)').length;
