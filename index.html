@@ -1799,43 +1799,42 @@ function drawRatingChart(history) {
     ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
   });
 
-  canvas._history = history;
-  canvas._toX = toX;
-  canvas._toY = toY;
-  canvas._pad = pad;
-  canvas._chartW = chartW;
+  // DOM tooltip
+  let tip = wrap.querySelector('.chart-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'chart-tip';
+    tip.style.cssText = 'position:absolute;pointer-events:none;display:none;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.12),0 1px 4px rgba(0,0,0,0.07);padding:6px 12px;white-space:nowrap;z-index:10;';
+    wrap.appendChild(tip);
+  }
 
   canvas.onmousemove = (e) => {
     const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const scaleX = canvas.width / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
     let closest = 0, minDist = Infinity;
     history.forEach((d, i) => { const dx = Math.abs(toX(i) - mx); if (dx < minDist) { minDist = dx; closest = i; } });
     const d = history[closest];
-    const x = toX(closest), y = toY(d.rating);
+    const cx = toX(closest), cy = toY(d.rating);
     drawRatingChart(history);
-    // Highlight
-    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fillStyle = '#00909a'; ctx.fill();
-    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
-    // Tooltip
-    const label = `${d.rating}  ·  ${d.label || d.date}`;
-    ctx.font = '12px DM Mono, monospace';
-    ctx.textBaseline = 'alphabetic';
-    const tw = ctx.measureText(label).width;
-    const pad2 = 12, boxW = tw + pad2 * 2, boxH = 28;
-    let tx = x - boxW / 2;
-    if (tx < 4) tx = 4;
-    if (tx + boxW > W - 4) tx = W - boxW - 4;
-    const showBelow = y < H / 2;
-    const ty = showBelow ? y + 10 : y - boxH - 10;
-    ctx.fillStyle = 'rgba(17,17,24,0.9)';
-    ctx.beginPath(); ctx.roundRect(tx, ty, boxW, boxH, 6); ctx.fill();
-    ctx.font = '12px DM Mono, monospace';
-    ctx.textBaseline = 'alphabetic';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(label, tx + pad2, ty + 19);
+    // Highlight dot
+    ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, Math.PI*2); ctx.fillStyle = '#00909a'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    // Position DOM tooltip
+    const dateStr = new Date(d.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    tip.innerHTML = `<span style="color:#c5007a;font-weight:700;font-family:\'DM Mono\',monospace;font-size:13px;">${d.rating}</span><span style="color:#888;font-family:\'DM Sans\',sans-serif;font-size:12px;margin-left:7px;">${dateStr}</span>`;
+    tip.style.display = 'block';
+    const scaleY = canvas.height / rect.height;
+    const px = cx / scaleX, py = cy / scaleY;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = px - tw / 2;
+    if (left < 4) left = 4;
+    if (left + tw > wrap.clientWidth - 4) left = wrap.clientWidth - tw - 4;
+    const top = py < wrap.clientHeight / 2 ? py + 12 : py - th - 12;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
   };
-  canvas.onmouseleave = () => drawRatingChart(history);
+  canvas.onmouseleave = () => { tip.style.display = 'none'; drawRatingChart(history); };
 }
 
 function showLoading(msg) {
