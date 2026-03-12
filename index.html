@@ -1639,7 +1639,7 @@ function renderDashboard({ name, rating, pdgaNum, location, classification, memb
       const nm = e.link ? `<a href="${e.link}" target="_blank">${e.name}</a>` : e.name;
       const normP = p.replace(/^#/,'');
       const yearStr = e.date ? (e.date.match(/(\d{4})/) ? e.date.match(/(\d{4})/)[1] : '') : '';
-      const divBadge = e.division ? `<div class="division-badge">${e.division}</div>` : '';
+      const divBadge = e.division ? `<div class="division-badge">${e.division}</div>` : '<div></div>';
       h += `<div class="event-row" data-type="${e.type||'tournament'}" data-place="${normP}" data-idx="${idx}">
         <div class="type-dot ${dc}"></div>
         <div class="event-name">${nm}</div>
