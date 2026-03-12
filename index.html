@@ -895,8 +895,9 @@ header {
 
   <div id="content">
     <div class="status">
-      <div style="font-size:36px;margin-bottom:14px;">🥏</div>
-      Enter your PDGA number to load your stats
+      <div style="font-size:40px;margin-bottom:16px;">🥏</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px;">Look up any player</div>
+      <div style="font-size:13.5px;color:var(--text-dim);line-height:1.6;max-width:260px;margin:0 auto;">Enter a PDGA number above to see rating history, events and results</div>
     </div>
   </div>
 
@@ -1175,7 +1176,7 @@ async function searchByName(name) {
       if (players.length) break; // found results — stop trying
     }
 
-    document.getElementById('content').innerHTML = '<div class="status"><div style="font-size:36px;margin-bottom:14px;">🥏</div>Select a player below or enter a PDGA number</div>';
+    document.getElementById('content').innerHTML = '<div class="status"><div style="font-size:40px;margin-bottom:16px;">🥏</div><div style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px;">Look up any player</div><div style="font-size:13.5px;color:var(--text-dim);line-height:1.6;max-width:260px;margin:0 auto;">Select a player below or enter a PDGA number above</div></div>';
     if (!players.length) {
       document.getElementById('searchHint').style.display = 'flex';
       const link = document.getElementById('pdgaSearchLink');
@@ -1185,7 +1186,7 @@ async function searchByName(name) {
       showSearchResults(players);
     }
   } catch(e) {
-    document.getElementById('content').innerHTML = '<div class="status"><div style="font-size:36px;margin-bottom:14px;">🥏</div>Enter your PDGA number to load your stats</div>';
+    document.getElementById('content').innerHTML = '<div class="status"><div style="font-size:40px;margin-bottom:16px;">🥏</div><div style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px;">Look up any player</div><div style="font-size:13.5px;color:var(--text-dim);line-height:1.6;max-width:260px;margin:0 auto;">Enter a PDGA number above to see rating history, events and results</div></div>';
     showSearchResults([], e.message);
   }
   btn.disabled = false;
