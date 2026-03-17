@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compare Players – Disc Golf Overview</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Disc Golf Overview">
+<meta name="theme-color" content="#c5007a">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f2f3f7;
+  --surface: #ffffff;
+  --surface2: #f7f7fb;
+  --border: #e4e4ec;
+  --accent: #c5007a;
+  --accent-light: #fce8f3;
+  --accent-dark: #9a005f;
+  --teal: #00909a;
+  --teal-light: #e0f5f7;
+  --text: #18181f;
+  --text-muted: #68687a;
+  --text-dim: #a8a8bc;
+  --gold: #a06800;
+  --gold-bg: #fff7e0;
+  --gold-border: #ecd060;
+  --green: #00784a;
+  --green-bg: #e2f5ec;
+  --green-border: #90d4b4;
+  --orange: #b84800;
+  --orange-light: #fff0e4;
+  --shadow-sm: 0 1px 3px rgba(20,20,40,0.07);
+  --shadow: 0 3px 14px rgba(20,20,40,0.09), 0 1px 3px rgba(20,20,40,0.05);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.app {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 16px;
+  position: relative;
+}
+.logo img {
+  display: block;
+  border-radius: 12px;
+}
+.header-text h1 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.header-text p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  font-weight: 500;
+}
+
+/* NAV MENU */
+.nav-menu {
+  margin-left: auto;
+  position: relative;
+}
+.nav-trigger {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.nav-trigger:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 180px;
+  z-index: 100;
+  overflow: hidden;
+}
+.nav-dropdown.open { display: block; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+}
+.nav-item:last-child { border-bottom: none; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.nav-item-active { color: var(--accent); }
+.nav-item.nav-item-active svg { color: var(--accent); }
+
+/* COMPARE SEARCH */
+.compare-search {
+  margin-bottom: 20px;
+}
+.compare-inputs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.compare-inputs input {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 11px 18px;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.compare-inputs input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(197,0,122,0.1);
+}
+.compare-inputs input::placeholder { color: var(--text-dim); }
+.compare-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 11px 20px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(197,0,122,0.25);
+  letter-spacing: 0.1px;
+}
+.compare-btn:hover { background: var(--accent-dark); box-shadow: 0 3px 12px rgba(197,0,122,0.35); }
+.compare-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* STATUS / SPINNER */
+.status {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.status.error { color: var(--orange); }
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fadeIn 0.25s ease-out; }
+
+/* SECTION */
+.section {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-header h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* CHART */
+.chart-wrap {
+  position: relative;
+  padding: 16px 16px 12px;
+}
+.chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+}
+canvas { display: block; }
+.chart-empty {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  padding: 0 4px 4px;
+  flex-wrap: wrap;
+}
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.chart-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* HEAD-TO-HEAD GRID */
+.h2h-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.h2h-player-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.h2h-player-header:first-child {
+  border-right: 1px solid var(--border);
+}
+.h2h-player-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.h2h-player-num {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-dim);
+}
+.h2h-player-header.p1 .h2h-player-name { color: var(--accent); }
+.h2h-player-header.p2 .h2h-player-name { color: var(--teal); }
+
+.h2h-stat-row {
+  display: contents;
+}
+.h2h-cell {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.h2h-cell:nth-child(odd) {
+  border-right: 1px solid var(--border);
+}
+.h2h-cell:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+.h2h-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.h2h-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.h2h-cell.winner .h2h-stat-value { color: var(--accent); }
+.h2h-cell.winner-teal .h2h-stat-value { color: var(--teal); }
+
+/* SHARED EVENTS */
+.shared-events-table {
+  width: 100%;
+}
+.shared-event-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.shared-event-row:last-child { border-bottom: none; }
+.shared-event-row:hover { background: var(--surface2); }
+.shared-event-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shared-event-name a {
+  color: inherit;
+  text-decoration: none;
+}
+.shared-event-name a:hover { color: var(--accent); text-decoration: underline; }
+.shared-event-year {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  margin-top: 2px;
+}
+.shared-placements {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.placement-badge {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  min-width: 36px;
+  text-align: center;
+}
+.placement-badge.p1 {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.placement-badge.p2 {
+  background: var(--teal-light);
+  color: var(--teal);
+}
+.placement-badge.place-1 {
+  background: var(--gold-bg);
+  color: var(--gold);
+  border: 1px solid var(--gold-border);
+}
+.shared-events-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.shared-events-header span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  text-align: center;
+}
+.shared-events-header span:first-child { text-align: left; }
+.shared-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+.empty-shared {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* PDGA CREDIT */
+.pdga-credit {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 20px;
+}
+.pdga-credit a { color: var(--text-muted); text-decoration: none; }
+.pdga-credit a:hover { color: var(--accent); }
+
+@media (max-width: 480px) {
+  .compare-inputs { flex-direction: column; }
+  .compare-inputs input { font-size: 16px; }
+  .h2h-stat-value { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">
+      <img src="data:image/png;base64,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" alt="Disc Golf Overview logo" width="53" height="53">
+    </div>
+    <div class="header-text">
+      <h1>Disc Golf Overview</h1>
+      <p>Compare Players</p>
+    </div>
+    <div class="nav-menu" id="navMenu">
+      <button class="nav-trigger" onclick="toggleNav()" aria-label="Menu">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <span>Menu</span>
+      </button>
+      <div class="nav-dropdown" id="navDropdown">
+        <a class="nav-item" href="index.html">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="3" height="6" rx="1" fill="currentColor"/><rect x="5.5" y="4" width="3" height="9" rx="1" fill="currentColor"/><rect x="10" y="1" width="3" height="12" rx="1" fill="currentColor"/></svg>
+          Player Stats
+        </a>
+        <a class="nav-item" href="index.html#courses">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
+          Courses
+        </a>
+        <a class="nav-item" href="index.html#standings">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="9" width="3" height="4" rx="1" fill="currentColor"/><rect x="5.5" y="5.5" width="3" height="7.5" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="11" rx="1" fill="currentColor"/><circle cx="11.5" cy="1" r="1.2" fill="currentColor"/></svg>
+          Standings
+        </a>
+        <a class="nav-item nav-item-active" href="compare.html">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="5" height="8" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="8" y="3" width="5" height="8" rx="1.2" stroke="currentColor" stroke-width="1.4"/></svg>
+          Compare Players
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- COMPARE PAGE -->
+  <div class="compare-inputs">
+    <input type="text" id="p1Input" placeholder="Player 1 PDGA #" inputmode="numeric" />
+    <input type="text" id="p2Input" placeholder="Player 2 PDGA #" inputmode="numeric" />
+  </div>
+  <button class="compare-btn" id="compareBtn" onclick="handleCompare()">Compare</button>
+
+  <div id="compareResults" style="margin-top:20px;">
+    <div class="status">
+      <div style="font-size:40px;margin-bottom:16px;">🥏</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px;">Compare two players</div>
+      <div style="font-size:13.5px;color:var(--text-dim);line-height:1.6;max-width:260px;margin:0 auto;">Enter two PDGA numbers above to see rating history, stats and shared events side by side</div>
+    </div>
+  </div>
+
+  <div class="pdga-credit">Player data © <a href="https://www.pdga.com" target="_blank">PDGA</a></div>
+</div>
+
+<script>
+// ── PROXY & FETCH UTILITIES ───────────────────────────────
+const PROXY_BASE = 'https://disc-stats.vercel.app/api/proxy';
+
+async function fetchViaProxy(url, retries = 3) {
+  const proxyUrl = `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+      if (res.status === 429) { await sleep(1500 * (i + 1)); continue; }
+      if (!res.ok) throw new Error(`Proxy error ${res.status}`);
+      const text = await res.text();
+      if (!text || text.length < 100) throw new Error('Empty response');
+      return text;
+    } catch(e) {
+      if (i === retries - 1) throw e;
+      await sleep(800 * (i + 1));
+    }
+  }
+  throw new Error('Failed after retries');
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function fetchAllPages(baseUrl, type) {
+  const events = [];
+  const parser = new DOMParser();
+  let doc = null;
+  try {
+    const html = await fetchViaProxy(baseUrl);
+    doc = parser.parseFromString(html, 'text/html');
+    parseEvents(doc, events, type);
+    let maxPage = 0;
+    doc.querySelectorAll('a[href*="page="]').forEach(a => {
+      const m = (a.getAttribute('href') || '').match(/[?&]page=(\d+)/);
+      if (m) maxPage = Math.max(maxPage, parseInt(m[1]));
+    });
+    for (let p = 1; p <= Math.min(maxPage, 15); p++) {
+      try {
+        const ph = await fetchViaProxy(`${baseUrl}?page=${p}`);
+        const pd = parser.parseFromString(ph, 'text/html');
+        const before = events.length;
+        parseEvents(pd, events, type);
+        if (events.length === before) break;
+      } catch(e) { break; }
+    }
+  } catch(e) {
+    if (type === 'tournament') throw e;
+  }
+  return { events, doc };
+}
+
+function parseEvents(doc, arr, type) {
+  let rows = [];
+  for (const sel of ['table.views-table tbody tr','.view-player-results tbody tr','.view-id-player_results tbody tr','.view-content table tbody tr','table tbody tr']) {
+    const found = doc.querySelectorAll(sel);
+    if (found.length > 0) { rows = Array.from(found); break; }
+  }
+  if (!rows.length) {
+    const divs = doc.querySelectorAll('.views-row');
+    if (divs.length) rows = Array.from(divs);
+  }
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td, .views-field'));
+    if (cells.length < 2) return;
+    const texts = cells.map(c => c.textContent.trim());
+    const rowText = texts.join(' ');
+    if (/Totals?:/i.test(rowText) && texts.some(t => t.match(/Totals?:/i))) return;
+    if (texts.some(t => /^(Event|Tournament|Name|Date|Place|Finish|Points)$/i.test(t) && cells.length < 4)) return;
+    let name = '', link = '';
+    for (const cell of cells) {
+      const a = cell.querySelector('a');
+      if (a) {
+        const t = a.textContent.trim();
+        if (t.length > 4 && !/^\d+$/.test(t) && !/^[A-Z]{1,4}$/.test(t)) {
+          name = t; link = a.getAttribute('href') || '';
+          if (link && !link.startsWith('http')) link = 'https://www.pdga.com' + link;
+          break;
+        }
+      }
+    }
+    if (!name) {
+      let longest = '';
+      texts.forEach(t => { if (t.length > longest.length && !/^\d+$/.test(t) && t.length > 4 && !/^[A-Z]{1,4}$/.test(t)) longest = t; });
+      name = longest;
+    }
+    if (!name || name.length < 4) return;
+    if (/^[A-Z]{2,4}\d?\s*[·•]/.test(name)) return;
+    if (/^(Am|Pro|Open|Mixed)\s+Totals?/i.test(name)) return;
+    let date = '';
+    texts.forEach(t => {
+      if (!date) {
+        const m = t.match(/\b\d{4}-\d{2}-\d{2}\b/) || t.match(/\b\d{1,2}-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}\b/i) || t.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?\s+\d{1,2},?\s+\d{4}\b/i) || t.match(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/);
+        if (m) date = m[0];
+      }
+    });
+    let place = '—';
+    for (let i = cells.length - 1; i >= 0; i--) {
+      const t = texts[i];
+      if (/^T?\d+$/.test(t) && +t.replace('T','') > 0 && +t.replace('T','') < 2000) { place = t; break; }
+      if (/^(DNF|DNS|DQ|WD|CUT)$/i.test(t)) { place = t.toUpperCase(); break; }
+    }
+    arr.push({ name, date, place, link, type });
+  });
+}
+
+function dedup(events) {
+  const seen = new Set();
+  return events.filter(e => {
+    const key = e.name.toLowerCase().trim() + '__' + e.date;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function extractPlayerName(doc, num) {
+  for (const sel of ['h1.page-title','.pane-page-title h1','h1#page-title','h1']) {
+    const el = doc.querySelector(sel);
+    if (el) {
+      const t = el.textContent.trim().replace(/\s*#?\d{4,7}\s*$/, '').trim();
+      if (t && t.length > 1 && !t.toLowerCase().includes('pdga')) return t;
+    }
+  }
+  return `Player #${num}`;
+}
+
+function extractRating(doc) {
+  for (const sel of ['.current-rating','.player-rating','[class*="current-rating"]','.views-field-rating']) {
+    const el = doc.querySelector(sel);
+    if (el) { const m = el.textContent.match(/\b(\d{3,4})\b/); if (m && +m[1] > 100) return m[1]; }
+  }
+  const m = (doc.body?.textContent || '').match(/[Rr]ating[:\s]+(\d{3,4})/);
+  return m ? m[1] : '—';
+}
+
+function parseRatingHistory(doc) {
+  const entries = [];
+  const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  function parseDate(str) {
+    const m1 = str.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+    if (m1) { const mo = MONTHS[m1[2].toLowerCase()]; if (mo !== undefined) return new Date(+m1[3], mo, +m1[1]); }
+    const m2 = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m2) return new Date(+m2[1], +m2[2]-1, +m2[3]);
+    const d = new Date(str);
+    return isNaN(d) ? null : d;
+  }
+  const rows = doc.querySelectorAll('table tbody tr, .view-player-history tbody tr, .view-content table tbody tr');
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    if (cells.length < 2) return;
+    const texts = cells.map(c => c.textContent.trim());
+    let rating = null, dateObj = null;
+    texts.forEach(t => {
+      const rMatch = t.match(/^(\d{3,4})$/);
+      if (rMatch && +rMatch[1] >= 400 && +rMatch[1] <= 1100) rating = +rMatch[1];
+      if (!dateObj) dateObj = parseDate(t);
+    });
+    if (rating && dateObj) entries.push({ date: dateObj.toISOString().split('T')[0], rating });
+  });
+  entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return entries;
+}
+
+// ── LOAD PLAYER DATA ──────────────────────────────────────
+async function loadPlayerData(num, onProgress) {
+  const baseUrl = `https://www.pdga.com/player/${num}`;
+  onProgress('Fetching profile...');
+  const { events: mainEvents, doc } = await fetchAllPages(baseUrl, 'tournament');
+  if (!doc) throw new Error('Could not load profile');
+  const name = extractPlayerName(doc, num);
+  const rating = extractRating(doc);
+
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let y = currentYear; y >= 2010; y--) years.push(y);
+  let allTournEvents = [...mainEvents];
+  let allLeagueEvents = [], allDoublesEvents = [];
+  let emptyYearsTotal = 0;
+
+  for (let i = 0; i < years.length; i += 3) {
+    const batch = years.slice(i, i + 3);
+    onProgress(`Fetching ${batch[batch.length-1]}–${batch[0]} results...`);
+    const batchResults = await Promise.all(batch.map(year => Promise.all([
+      fetchAllPages(`${baseUrl}/stats/${year}`, 'tournament').catch(() => ({ events: [] })),
+      fetchAllPages(`${baseUrl}/stats/${year}?tab=leagues`, 'league').catch(() => ({ events: [] })),
+      fetchAllPages(`${baseUrl}/stats/${year}?tab=doubles`, 'doubles').catch(() => ({ events: [] })),
+    ])));
+    let batchEmpty = 0;
+    for (const [{ events: tE }, { events: lE }, { events: dE }] of batchResults) {
+      if (tE.length + lE.length + dE.length === 0) batchEmpty++;
+      allTournEvents = [...allTournEvents, ...tE];
+      allLeagueEvents = [...allLeagueEvents, ...lE];
+      allDoublesEvents = [...allDoublesEvents, ...dE];
+    }
+    if (batchEmpty === batch.length) {
+      emptyYearsTotal += batch.length;
+      if (emptyYearsTotal >= 3) break;
+    } else { emptyYearsTotal = 0; }
+    await sleep(150);
+  }
+
+  const allEvents = dedup([...allTournEvents, ...allLeagueEvents, ...allDoublesEvents]);
+
+  onProgress('Fetching rating history...');
+  let ratingHistory = [];
+  try {
+    const histHtml = await fetchViaProxy(`${baseUrl}/history`);
+    const histDoc = new DOMParser().parseFromString(histHtml, 'text/html');
+    ratingHistory = parseRatingHistory(histDoc);
+  } catch(e) {}
+
+  return { name, rating, pdgaNum: num, events: allEvents, ratingHistory };
+}
+
+// ── MAIN COMPARE HANDLER ──────────────────────────────────
+async function handleCompare() {
+  const n1 = document.getElementById('p1Input').value.trim();
+  const n2 = document.getElementById('p2Input').value.trim();
+  if (!n1 || !n2) { alert('Please enter both PDGA numbers.'); return; }
+  if (!/^\d{4,7}$/.test(n1) || !/^\d{4,7}$/.test(n2)) { alert('Please enter valid PDGA numbers (4–7 digits).'); return; }
+  if (n1 === n2) { alert('Please enter two different PDGA numbers.'); return; }
+
+  const btn = document.getElementById('compareBtn');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+
+  const results = document.getElementById('compareResults');
+  results.innerHTML = `<div class="status"><div class="spinner"></div>Loading Player 1…</div>`;
+
+  try {
+    const [p1, p2] = await Promise.all([
+      loadPlayerData(n1, msg => { results.innerHTML = `<div class="status"><div class="spinner"></div>${msg} (Player 1)</div>`; }),
+      loadPlayerData(n2, msg => {}),
+    ]);
+    renderCompare(p1, p2);
+  } catch(e) {
+    results.innerHTML = `<div class="status error"><div style="font-size:28px;margin-bottom:12px;">⚠️</div>Could not load player data. Check the PDGA numbers and try again.</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Compare';
+}
+
+// ── RENDER COMPARE RESULTS ────────────────────────────────
+function renderCompare(p1, p2) {
+  const normPlace = p => String(p || '').replace(/^#/, '').trim();
+  const isWin = e => ['1','T1'].includes(normPlace(e.place));
+  const isPodium = e => ['1','2','3','T1','T2','T3'].includes(normPlace(e.place));
+
+  const stats1 = {
+    events: p1.events.length,
+    wins: p1.events.filter(isWin).length,
+    podiums: p1.events.filter(isPodium).length,
+    rating: p1.rating,
+  };
+  const stats2 = {
+    events: p2.events.length,
+    wins: p2.events.filter(isWin).length,
+    podiums: p2.events.filter(isPodium).length,
+    rating: p2.rating,
+  };
+
+  const sharedEvents = findSharedEvents(p1.events, p2.events);
+  const hasChart = p1.ratingHistory.length >= 2 || p2.ratingHistory.length >= 2;
+
+  let h = `<div class="fade-in">`;
+
+  // ── RATING HISTORY CHART ──
+  h += `<div class="section">
+    <div class="section-header"><div class="dot"></div><h3>Rating History</h3></div>`;
+  if (hasChart) {
+    h += `<div class="chart-wrap">
+      <div class="chart-canvas-wrap"><canvas id="compareChart"></canvas></div>
+      <div class="chart-legend" id="chartLegend"></div>
+    </div>`;
+  } else {
+    h += `<div class="chart-empty">No rating history data available for these players.</div>`;
+  }
+  h += `</div>`;
+
+  // ── HEAD-TO-HEAD STATS ──
+  const statRows = [
+    { label: 'Total Events', k: 'events', higher: true },
+    { label: 'Wins',         k: 'wins',   higher: true },
+    { label: 'Podiums',      k: 'podiums',higher: true },
+    { label: 'Rating',       k: 'rating', higher: true },
+  ];
+
+  h += `<div class="section">
+    <div class="section-header"><div class="dot"></div><h3>Head-to-Head</h3></div>
+    <div class="h2h-grid">
+      <div class="h2h-player-header p1">
+        <div class="h2h-player-name">${escHtml(p1.name)}</div>
+        <div class="h2h-player-num">#${p1.pdgaNum}</div>
+      </div>
+      <div class="h2h-player-header p2">
+        <div class="h2h-player-name">${escHtml(p2.name)}</div>
+        <div class="h2h-player-num">#${p2.pdgaNum}</div>
+      </div>`;
+
+  for (const { label, k, higher } of statRows) {
+    const v1 = stats1[k], v2 = stats2[k];
+    const n1 = parseFloat(v1) || 0, n2 = parseFloat(v2) || 0;
+    const p1wins = higher ? n1 > n2 : n1 < n2;
+    const p2wins = higher ? n2 > n1 : n2 < n1;
+    h += `<div class="h2h-cell${p1wins ? ' winner' : ''}">
+        <div class="h2h-stat-value">${v1}</div>
+        <div class="h2h-stat-label">${label}</div>
+      </div>
+      <div class="h2h-cell${p2wins ? ' winner-teal' : ''}">
+        <div class="h2h-stat-value">${v2}</div>
+        <div class="h2h-stat-label">${label}</div>
+      </div>`;
+  }
+  h += `</div></div>`;
+
+  // ── SHARED EVENTS ──
+  h += `<div class="section">
+    <div class="section-header">
+      <div class="dot"></div><h3>Shared Events</h3>
+      <span class="shared-count">${sharedEvents.length} event${sharedEvents.length !== 1 ? 's' : ''}</span>
+    </div>`;
+
+  if (sharedEvents.length === 0) {
+    h += `<div class="empty-shared">No shared events found between these two players.</div>`;
+  } else {
+    h += `<div class="shared-events-table">
+      <div class="shared-events-header">
+        <span>Event</span>
+        <span style="color:var(--accent);">#${p1.pdgaNum}</span>
+        <span style="color:var(--teal);">#${p2.pdgaNum}</span>
+      </div>`;
+    sharedEvents.forEach(ev => {
+      const yearStr = ev.date ? (ev.date.match(/(\d{4})/) || ['',''])[1] : '';
+      const nm = ev.link ? `<a href="${ev.link}" target="_blank">${escHtml(ev.name)}</a>` : escHtml(ev.name);
+      const dp1 = fmtPlace(ev.place1);
+      const dp2 = fmtPlace(ev.place2);
+      const cls1 = dp1 === '#1' ? 'placement-badge p1 place-1' : 'placement-badge p1';
+      const cls2 = dp2 === '#1' ? 'placement-badge p2 place-1' : 'placement-badge p2';
+      h += `<div class="shared-event-row">
+        <div>
+          <div class="shared-event-name">${nm}</div>
+          ${yearStr ? `<div class="shared-event-year">${yearStr}</div>` : ''}
+        </div>
+        <div class="shared-placements">
+          <span class="${cls1}">${dp1}</span>
+        </div>
+        <div class="shared-placements">
+          <span class="${cls2}">${dp2}</span>
+        </div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+  h += `</div>`;
+
+  h += `</div>`;
+
+  document.getElementById('compareResults').innerHTML = h;
+
+  if (hasChart) drawCompareChart(p1, p2);
+}
+
+// ── SHARED EVENTS MATCHING ────────────────────────────────
+function findSharedEvents(events1, events2) {
+  const normalize = name => name.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+  const map2 = new Map();
+  events2.forEach(e => {
+    const key = normalize(e.name);
+    if (!map2.has(key)) map2.set(key, e);
+  });
+  const shared = [];
+  const seen = new Set();
+  events1.forEach(e => {
+    const key = normalize(e.name);
+    if (map2.has(key) && !seen.has(key)) {
+      seen.add(key);
+      const e2 = map2.get(key);
+      shared.push({ name: e.name, date: e.date || e2.date, link: e.link || e2.link, place1: e.place, place2: e2.place });
+    }
+  });
+  // Sort by date descending
+  shared.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  return shared;
+}
+
+function fmtPlace(p) {
+  const s = String(p || '').replace(/^#/, '').trim();
+  if (!s || s === '—') return '—';
+  if (/^(DNF|DNS|DQ|WD|CUT)$/i.test(s)) return s.toUpperCase();
+  return '#' + s;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── DUAL RATING CHART ─────────────────────────────────────
+function drawCompareChart(p1, p2) {
+  const canvas = document.getElementById('compareChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  const W = canvas.width, H = canvas.height;
+  const pad = { top: 28, right: 16, bottom: 16, left: 44 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  const h1 = p1.ratingHistory, h2 = p2.ratingHistory;
+
+  // Build unified date axis
+  const allDates = Array.from(new Set([...h1.map(d=>d.date), ...h2.map(d=>d.date)])).sort();
+  if (allDates.length < 2) return;
+
+  // For each player, get rating at each date (last known value)
+  function ratingAt(history, date) {
+    if (!history.length) return null;
+    let last = null;
+    for (const e of history) {
+      if (e.date <= date) last = e.rating;
+      else break;
+    }
+    return last;
+  }
+
+  const series1 = allDates.map(d => ({ date: d, rating: ratingAt(h1, d) })).filter(d => d.rating !== null);
+  const series2 = allDates.map(d => ({ date: d, rating: ratingAt(h2, d) })).filter(d => d.rating !== null);
+
+  const allRatings = [...series1.map(d=>d.rating), ...series2.map(d=>d.rating)].filter(Boolean);
+  if (!allRatings.length) return;
+
+  const minR = Math.min(...allRatings) - 20;
+  const maxR = Math.max(...allRatings) + 20;
+  const rRange = maxR - minR;
+
+  // Map date string to X position
+  const minDate = allDates[0], maxDate = allDates[allDates.length - 1];
+  const minT = new Date(minDate).getTime(), maxT = new Date(maxDate).getTime();
+  const spanT = maxT - minT || 1;
+
+  const toX = date => pad.left + ((new Date(date).getTime() - minT) / spanT) * chartW;
+  const toY = r => pad.top + chartH - ((r - minR) / rRange) * chartH;
+
+  // Grid
+  const step = rRange > 100 ? 50 : 25;
+  for (let r = Math.ceil(minR / step) * step; r <= maxR; r += step) {
+    const y = toY(r);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + chartW, y);
+    ctx.strokeStyle = 'rgba(180,180,200,0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#a0a0b0';
+    ctx.font = '10px DM Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(r, pad.left - 6, y + 3);
+  }
+
+  function drawSeries(series, color, alpha) {
+    if (series.length < 2) return;
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+    grad.addColorStop(0, color.replace(')', `,${alpha})`).replace('rgb', 'rgba'));
+    grad.addColorStop(1, color.replace(')', ',0)').replace('rgb', 'rgba'));
+    ctx.beginPath();
+    series.forEach((d, i) => { i === 0 ? ctx.moveTo(toX(d.date), toY(d.rating)) : ctx.lineTo(toX(d.date), toY(d.rating)); });
+    ctx.lineTo(toX(series[series.length-1].date), pad.top + chartH);
+    ctx.lineTo(toX(series[0].date), pad.top + chartH);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    // Line
+    ctx.beginPath();
+    series.forEach((d, i) => { i === 0 ? ctx.moveTo(toX(d.date), toY(d.rating)) : ctx.lineTo(toX(d.date), toY(d.rating)); });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    // Dots
+    series.forEach(d => {
+      const x = toX(d.date), y = toY(d.rating);
+      ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    });
+  }
+
+  drawSeries(series1, 'rgb(197,0,122)', 0.15);
+  drawSeries(series2, 'rgb(0,144,154)', 0.15);
+
+  // Legend
+  const legendEl = document.getElementById('chartLegend');
+  if (legendEl) {
+    legendEl.innerHTML = `
+      <div class="chart-legend-item">
+        <div class="chart-legend-dot" style="background:#c5007a;"></div>
+        <span>${escHtml(p1.name)}</span>
+      </div>
+      <div class="chart-legend-item">
+        <div class="chart-legend-dot" style="background:#00909a;"></div>
+        <span>${escHtml(p2.name)}</span>
+      </div>`;
+  }
+
+  // Tooltip
+  let tip = wrap.querySelector('.chart-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'chart-tip';
+    tip.style.cssText = 'position:absolute;pointer-events:none;display:none;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.12);padding:7px 13px;white-space:nowrap;z-index:10;font-size:12px;';
+    wrap.appendChild(tip);
+  }
+
+  canvas.onmousemove = e => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
+    // Find closest date across both series
+    let closest = null, minDist = Infinity;
+    [...series1, ...series2].forEach(d => {
+      const dx = Math.abs(toX(d.date) - mx);
+      if (dx < minDist) { minDist = dx; closest = d.date; }
+    });
+    if (!closest) return;
+
+    const r1 = ratingAt(h1, closest);
+    const r2 = ratingAt(h2, closest);
+    const dateStr = new Date(closest + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+    // Redraw
+    ctx.clearRect(0, 0, W, H);
+    // Redraw grid
+    for (let r = Math.ceil(minR / step) * step; r <= maxR; r += step) {
+      const y = toY(r);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y);
+      ctx.strokeStyle = 'rgba(180,180,200,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#a0a0b0'; ctx.font = '10px DM Mono, monospace'; ctx.textAlign = 'right';
+      ctx.fillText(r, pad.left - 6, y + 3);
+    }
+    drawSeries(series1, 'rgb(197,0,122)', 0.15);
+    drawSeries(series2, 'rgb(0,144,154)', 0.15);
+    // Highlight dots
+    if (r1) { const x = toX(closest), y = toY(r1); ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI*2); ctx.fillStyle = '#c5007a'; ctx.fill(); ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill(); }
+    if (r2) { const x = toX(closest), y = toY(r2); ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI*2); ctx.fillStyle = '#00909a'; ctx.fill(); ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill(); }
+
+    let tipHtml = `<span style="color:#888;margin-right:8px;">${dateStr}</span>`;
+    if (r1) tipHtml += `<span style="color:#c5007a;font-weight:700;font-family:'DM Mono',monospace;margin-right:8px;">${r1}</span>`;
+    if (r2) tipHtml += `<span style="color:#00909a;font-weight:700;font-family:'DM Mono',monospace;">${r2}</span>`;
+    tip.innerHTML = tipHtml;
+    tip.style.display = 'block';
+
+    const scaleY = canvas.height / rect.height;
+    const px = toX(closest) / scaleX;
+    let left = px - tip.offsetWidth / 2;
+    if (left < 4) left = 4;
+    if (left + tip.offsetWidth > wrap.clientWidth - 4) left = wrap.clientWidth - tip.offsetWidth - 4;
+    tip.style.left = left + 'px';
+    tip.style.top = '6px';
+  };
+
+  canvas.onmouseleave = () => {
+    tip.style.display = 'none';
+    ctx.clearRect(0, 0, W, H);
+    for (let r = Math.ceil(minR / step) * step; r <= maxR; r += step) {
+      const y = toY(r);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y);
+      ctx.strokeStyle = 'rgba(180,180,200,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#a0a0b0'; ctx.font = '10px DM Mono, monospace'; ctx.textAlign = 'right';
+      ctx.fillText(r, pad.left - 6, y + 3);
+    }
+    drawSeries(series1, 'rgb(197,0,122)', 0.15);
+    drawSeries(series2, 'rgb(0,144,154)', 0.15);
+  };
+}
+
+// ── NAV ───────────────────────────────────────────────────
+function toggleNav() {
+  document.getElementById('navDropdown').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  const menu = document.getElementById('navMenu');
+  if (menu && !menu.contains(e.target)) document.getElementById('navDropdown').classList.remove('open');
+});
+
+// ── KEYBOARD ──────────────────────────────────────────────
+document.getElementById('p1Input').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('p2Input').focus(); });
+document.getElementById('p2Input').addEventListener('keydown', e => { if (e.key === 'Enter') handleCompare(); });
+
+// ── URL PARAMS (optional deep linking) ───────────────────
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(location.search);
+  const p1 = params.get('p1'), p2 = params.get('p2');
+  if (p1) document.getElementById('p1Input').value = p1;
+  if (p2) document.getElementById('p2Input').value = p2;
+  if (p1 && p2) handleCompare();
+});
+</script>
+</body>
+</html>
